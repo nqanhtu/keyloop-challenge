@@ -40,15 +40,21 @@ Before orchestrating implementation, read `docs/agents/README.md`.
 Execution responsibilities:
 - Herdr is orchestration/lifecycle only.
 - Codex is Lead, Auditor, Reviewer, Tester, and final Compliance authority.
-- Antigravity is Builder, Repairer, and Integrator.
-- Codex must not repair source implementation itself.
+- Codex is repository-mutation read-only: it may decide and generate workflow content, but it does not write source or durable workflow files itself.
+- Antigravity is the only normal repository writer: Builder/Repairer/Integrator for implementation and Workflow Scribe for Codex-directed durable workflow artifacts.
 - Antigravity must not change System Design or silently expand implementation scope.
+- Workflow Scribe writes only the exact Codex-approved workflow artifact content and paths; it does not invent product or architecture decisions.
 
 Use progressive disclosure:
-- Codex Lead reads the complete System Design.
+- Codex Lead reads the complete System Design initially.
 - Builders receive bounded task contracts and only relevant design/rule/code context.
 - Reviewers receive task contract + relevant design + diff + evidence.
 - Historical incidents and transcripts are loaded only when diagnosis requires them.
+
+Project overrides for installed generic skills:
+- A Task Contract `test_seams` section is the pre-agreed seam authority for autonomous TDD. Do not ask the human to reconfirm those seams unless the System Design genuinely lacks authority.
+- For code review, `base_commit` is the fixed point and the Task Contract + referenced System Design sections are the originating spec. `docs/agents/issue-tracker.md` defines the local adapter; GitHub Issues are not the delivery control plane.
+- Project workflow learning may update only project-owned workflow artifacts under `docs/agents/` and repository-native project tests/checks through an Antigravity writer. Do not modify the Harness-managed block, `.harness-core/`, Harness-owned core skills, or generic Harness workflow files unless the user explicitly authorizes `$improve-harness`.
 
 Release completion requires executable/observable evidence and final Codex
 System Design compliance PASS. Agent claims alone are not evidence.
@@ -57,3 +63,4 @@ See:
 - `docs/agents/ORCHESTRATION.md`
 - `docs/agents/TASK_CONTRACT_TEMPLATE.md`
 - `docs/agents/QUALITY_AND_LEARNING.md`
+- `.agents/skills/deliver-system-design/SKILL.md`
