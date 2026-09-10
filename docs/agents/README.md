@@ -87,6 +87,14 @@ A fresh Codex Lead must be able to resume from committed repository state plus c
 
 Use a single active implementation plan for cross-session progress. Do not create parallel task databases unless an external tracker is explicitly adopted.
 
+## Branch and Release Provenance
+
+Before dispatching or formally reviewing an implementation task, read [BRANCHING.md](BRANCHING.md).
+
+The Task Contract `base_commit` is captured before the Scribe persists that contract. Builder worktrees start from that captured base so workflow-record commits stay out of implementation diffs.
+
+Final Compliance audits a pinned `release_candidate_commit`. Compliance evidence and plan archival happen afterward as workflow-record-only writes. The audited candidate and the later workflow record commit remain distinct identities and the post-pass diff must be checked for authorized workflow paths only.
+
 ## Work Decomposition
 
 Use the following conceptual hierarchy when useful:
@@ -135,6 +143,7 @@ That skill is the control loop. The generic Herdr skill only supplies Herdr mech
 ## Supporting Documents
 
 - [ORCHESTRATION.md](ORCHESTRATION.md) — execution lifecycle, role separation, recovery, retries, and integration.
+- [BRANCHING.md](BRANCHING.md) — task base commits, worktree creation, review fixed points, and commit provenance.
 - [TASK_CONTRACT_TEMPLATE.md](TASK_CONTRACT_TEMPLATE.md) — bounded handoff contract from Codex Lead to Antigravity.
 - [QUALITY_AND_LEARNING.md](QUALITY_AND_LEARNING.md) — readiness/done gates, review/testing/compliance, incidents, and workflow learning.
 - [issue-tracker.md](issue-tracker.md) — adapter for generic review skills without adding an issue-based control plane.
