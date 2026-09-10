@@ -8,3 +8,7 @@ the active execution plan and do not require a separate decision.
 
 An installed consumer begins with no fabricated decisions. Add local decision
 documents here as real choices are accepted, then index them in this file.
+
+## Accepted
+
+- [0001 Mock Implementation Baseline](0001-mock-implementation-baseline.md) — current-inventory/action eligibility semantics, optional-note validation boundary, deterministic demo timezone/freshness defaults, and trusted mock authorization context for the frontend challenge.
