@@ -33,27 +33,29 @@ and behavior-level proof; do not create parallel control-plane state.
 ## Keyloop Challenge Autonomous Workflow
 
 For this repository, `docs/system-design/system-design-v1.md` is the authoritative
-system and product design for the challenge unless explicitly superseded.
+system and product design for the challenge unless explicitly superseded by an
+accepted decision in `docs/decisions/`.
 
-Before orchestrating implementation, read `docs/agents/README.md`. Before creating or reviewing task worktrees, also read `docs/agents/BRANCHING.md`.
+Before orchestrating implementation, read `docs/agents/README.md` and `docs/agents/RUNTIME.md`.
+Before creating or reviewing task worktrees, also read `docs/agents/BRANCHING.md`.
 
 Execution responsibilities:
 - Herdr is orchestration/lifecycle only.
 - Codex is Lead, Auditor, Reviewer, Tester, and final Compliance authority.
-- Codex is repository-mutation read-only: it may decide and generate workflow content, but it does not write source or durable workflow files itself.
+- Codex is repository-mutation read-only: runtime permissions may be broader for Herdr IPC, but Codex does not write source or durable workflow files itself.
 - Antigravity is the only normal repository writer: Builder/Repairer/Integrator for implementation and Workflow Scribe for Codex-directed durable workflow artifacts.
 - Antigravity must not change System Design or silently expand implementation scope.
 - Workflow Scribe writes only the exact Codex-approved workflow artifact content and paths; it does not invent product or architecture decisions.
 
 Use progressive disclosure:
-- Codex Lead reads the complete System Design initially.
-- Builders receive bounded task contracts and only relevant design/rule/code context.
-- Reviewers receive task contract + relevant design + diff + evidence.
+- Codex Lead reads the complete System Design and accepted decisions initially.
+- Builders receive bounded task contracts and only relevant design/decision/rule/code context.
+- Reviewers receive task contract + relevant authority + diff + evidence.
 - Historical incidents and transcripts are loaded only when diagnosis requires them.
 
 Project overrides for installed generic skills:
-- A Task Contract `test_seams` section is the pre-agreed seam authority for autonomous TDD. Do not ask the human to reconfirm those seams unless the System Design genuinely lacks authority.
-- For code review, `base_commit` is the fixed point and the Task Contract + referenced System Design sections are the originating spec. `docs/agents/issue-tracker.md` defines the local adapter; GitHub Issues are not the delivery control plane.
+- A Task Contract `test_seams` section is the pre-agreed seam authority for autonomous TDD. Do not ask the human to reconfirm those seams unless repository authority genuinely lacks the necessary decision.
+- For code review, `base_commit` is the fixed point and the Task Contract + referenced System Design/Decision sections are the originating spec. `docs/agents/issue-tracker.md` defines the local adapter; GitHub Issues are not the delivery control plane.
 - Project workflow learning may update only project-owned workflow artifacts under `docs/agents/` and repository-native project tests/checks through an Antigravity writer. Do not modify the Harness-managed block, `.harness-core/`, Harness-owned core skills, or generic Harness workflow files unless the user explicitly authorizes `$improve-harness`.
 
 Task/release provenance rules:
@@ -65,7 +67,9 @@ System Design compliance PASS. Agent claims alone are not evidence.
 
 See:
 - `docs/agents/ORCHESTRATION.md`
+- `docs/agents/RUNTIME.md`
 - `docs/agents/BRANCHING.md`
 - `docs/agents/TASK_CONTRACT_TEMPLATE.md`
 - `docs/agents/QUALITY_AND_LEARNING.md`
+- `docs/decisions/README.md`
 - `.agents/skills/deliver-system-design/SKILL.md`
