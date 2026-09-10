@@ -29,6 +29,25 @@ Repository state and executable evidence outrank agent claims or session memory.
 
 See [ORCHESTRATION.md](ORCHESTRATION.md).
 
+## Runtime Policy
+
+Read [RUNTIME.md](RUNTIME.md) before starting autonomous agents.
+
+Normal runtime policy is intentionally economical because the repository Harness, Task Contracts, reviews, tests, and evidence carry much of the reliability:
+
+```text
+Codex Lead            gpt-5.6-sol / medium
+Codex Reviewer        gpt-5.6-sol / medium
+Codex Tester          gpt-5.6-terra / medium
+Codex diagnosis       gpt-5.6-sol / high when escalated
+Codex Compliance      gpt-5.6-sol / high
+AGY Workflow Scribe   gemini-3.8-flash-medium
+AGY Builder/Repair    gemini-3.8-flash-high
+AGY Integrator        gemini-3.8-flash-high
+```
+
+Codex internal multi-agent mode stays disabled; Herdr is the orchestration layer. The current macOS environment requires Codex runtime `danger-full-access` for Herdr Unix-socket IPC, while the repository role remains logically read-only and all repository writes stay delegated to Antigravity.
+
 ## Progressive Disclosure
 
 Agents load the smallest authoritative context needed for the current responsibility.
@@ -143,7 +162,9 @@ That skill is the control loop. The generic Herdr skill only supplies Herdr mech
 ## Supporting Documents
 
 - [ORCHESTRATION.md](ORCHESTRATION.md) — execution lifecycle, role separation, recovery, retries, and integration.
+- [RUNTIME.md](RUNTIME.md) — pinned model/effort/runtime permissions and escalation policy.
 - [BRANCHING.md](BRANCHING.md) — task base commits, worktree creation, review fixed points, and commit provenance.
 - [TASK_CONTRACT_TEMPLATE.md](TASK_CONTRACT_TEMPLATE.md) — bounded handoff contract from Codex Lead to Antigravity.
 - [QUALITY_AND_LEARNING.md](QUALITY_AND_LEARNING.md) — readiness/done gates, review/testing/compliance, incidents, and workflow learning.
 - [issue-tracker.md](issue-tracker.md) — adapter for generic review skills without adding an issue-based control plane.
+- [../decisions/README.md](../decisions/README.md) — accepted implementation/product decisions that supplement the System Design.
