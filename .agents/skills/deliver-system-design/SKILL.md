@@ -41,9 +41,10 @@ Then read, in order:
 1. `AGENTS.md`;
 2. `docs/agents/README.md`;
 3. `docs/agents/ORCHESTRATION.md`;
-4. `docs/agents/QUALITY_AND_LEARNING.md`;
-5. `docs/agents/TASK_CONTRACT_TEMPLATE.md`;
-6. `docs/system-design/system-design-v1.md`.
+4. `docs/agents/BRANCHING.md`;
+5. `docs/agents/QUALITY_AND_LEARNING.md`;
+6. `docs/agents/TASK_CONTRACT_TEMPLATE.md`;
+7. `docs/system-design/system-design-v1.md`.
 
 Use the installed `herdr` skill for current Herdr CLI mechanics. The installed binary is authoritative for exact commands; discover with `herdr --help` and the relevant command group instead of guessing syntax.
 
@@ -166,7 +167,17 @@ Verify the resulting Git diff/commit before trusting the persisted state.
 
 Dispatch only a READY task.
 
-For each task, Codex compiles a Task Contract using `docs/agents/TASK_CONTRACT_TEMPLATE.md`.
+For each implementation task, follow `docs/agents/BRANCHING.md` exactly:
+
+1. capture `B = current coordination-branch HEAD` **before** persisting the Task Contract;
+2. compile the Task Contract with `base_commit: B`;
+3. persist the contract through Workflow Scribe on the coordination branch;
+4. create the Builder worktree/branch explicitly from `B`, not from the later Scribe commit;
+5. send the Task Contract to the Builder in the Herdr context package because its branch may intentionally not contain the persisted contract file.
+
+This keeps workflow-record commits out of the implementation diff and makes `base_commit` a truthful review fixed point.
+
+Compile each contract using `docs/agents/TASK_CONTRACT_TEMPLATE.md`.
 
 Every Builder contract must include:
 
@@ -195,7 +206,7 @@ Persist the contract through Workflow Scribe at:
 docs/agents/tasks/<TASK-ID>.md
 ```
 
-Then create/reuse the task worktree and start an Antigravity Builder with Herdr.
+Then create/reuse the task worktree from the recorded `base_commit` and start an Antigravity Builder with Herdr.
 
 The Builder receives only:
 
@@ -216,7 +227,7 @@ Codex Lead checks:
 
 ```text
 commit exists
-diff is within scope
+diff from base_commit is within scope
 required validation actually ran
 capsule maps requirements to implementation
 no undeclared design deviation
@@ -278,6 +289,8 @@ architecture compliance checks
 ```
 
 Never repeatedly retry a failing test until green and call that success. Suspected flakiness enters diagnosis.
+
+When source structure is stable enough to encode a project invariant mechanically, prefer a repository-native check/test over another textual reminder. Codex may use the `encode-invariant` guidance to design the proof, but an Antigravity writer performs the repository mutation.
 
 ## Phase 8 — Failure Diagnosis and Repair
 
@@ -356,15 +369,23 @@ Project learning must never autonomously modify the Harness-managed block, `.har
 
 Only reviewed and sufficiently tested work may be integrated.
 
-Use an Antigravity Integrator for repository writes/merge conflict resolution.
+Use an Antigravity Integrator for repository writes/merge conflict resolution. Scribe and Integrator writes to the coordination branch are serialized.
 
 If a conflict is purely mechanical, Integrator resolves and reports evidence. If resolution would choose product semantics, API behavior, ownership, or architecture, stop that integration attempt and escalate to Codex Lead.
 
 After each meaningful integration, run affected validation and update the implementation plan through Workflow Scribe.
 
+Dependent tasks must capture a new `base_commit` only after required dependencies have been integrated and verified.
+
 ## Phase 11 — Clean Release Candidate
 
-When all required work is integrated, create a fresh clean checkout/worktree at the candidate commit.
+When all required work is integrated, pin:
+
+```text
+release_candidate_commit = current coordination-branch HEAD
+```
+
+Create a fresh clean checkout/worktree at that exact commit.
 
 Do not rely on Builder-local uncommitted files, dev servers, caches, or browser storage state.
 
@@ -382,15 +403,17 @@ architecture checks
 
 A required flaky/unreliable proof blocks release until resolved or explicitly re-authorized by the user.
 
+Do not advance `release_candidate_commit` after clean verification without rerunning the affected release gates.
+
 ## Phase 12 — Final Codex Compliance
 
-Start a fresh Codex Compliance session.
+Start a fresh Codex Compliance session pinned to `release_candidate_commit`.
 
 It reads:
 
 ```text
 complete System Design
-final release-candidate repository
+release_candidate_commit repository state
 single active implementation plan
 requirement registry
 relevant evidence files
@@ -416,24 +439,36 @@ Only Codex Compliance may decide:
 RELEASE: PASS
 ```
 
-If compliance fails, route findings back through the bounded AGY repair loop and rerun affected gates plus final compliance.
+If compliance fails, route findings back through the bounded AGY repair loop, integrate the repair, pin a new release candidate, and rerun affected gates plus final compliance.
 
-When compliance passes, have Workflow Scribe persist the exact matrix at:
+If compliance passes, keep the audited candidate SHA immutable as the product release identity.
+
+Then have Workflow Scribe perform only the post-pass record writes:
 
 ```text
 docs/agents/evidence/release-compliance.md
+move docs/plans/active/implementation.md -> docs/plans/completed/<implementation-plan-name>.md
 ```
 
-and move the implementation plan from `docs/plans/active/` to `docs/plans/completed/` with the final candidate commit and compliance evidence reference.
+Those writes create a later `workflow_record_commit`. They do **not** replace the audited `release_candidate_commit`.
+
+After the Scribe commit, Codex performs one final read-only provenance check:
+
+```text
+git diff --name-only <release_candidate_commit>..<workflow_record_commit>
+```
+
+The post-pass diff must be limited to the authorized compliance evidence and plan archival paths above. Any source, test, package, lockfile, System Design, Harness-core, or unrelated change invalidates the record step and requires investigation; do not silently transfer RELEASE PASS to a modified product state.
 
 ## Completion Report
 
-Return to the user only after release PASS or a genuine BLOCKED condition.
+Return to the user only after release PASS plus the post-pass provenance check, or after a genuine BLOCKED condition.
 
 For PASS, report concisely:
 
 ```text
-final release commit
+release_candidate_commit (the audited product)
+workflow_record_commit (post-pass records only)
 implemented capability summary
 quality gates executed
 System Design compliance result
