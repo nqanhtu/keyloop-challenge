@@ -35,7 +35,7 @@ and behavior-level proof; do not create parallel control-plane state.
 For this repository, `docs/system-design/system-design-v1.md` is the authoritative
 system and product design for the challenge unless explicitly superseded.
 
-Before orchestrating implementation, read `docs/agents/README.md`.
+Before orchestrating implementation, read `docs/agents/README.md`. Before creating or reviewing task worktrees, also read `docs/agents/BRANCHING.md`.
 
 Execution responsibilities:
 - Herdr is orchestration/lifecycle only.
@@ -56,11 +56,16 @@ Project overrides for installed generic skills:
 - For code review, `base_commit` is the fixed point and the Task Contract + referenced System Design sections are the originating spec. `docs/agents/issue-tracker.md` defines the local adapter; GitHub Issues are not the delivery control plane.
 - Project workflow learning may update only project-owned workflow artifacts under `docs/agents/` and repository-native project tests/checks through an Antigravity writer. Do not modify the Harness-managed block, `.harness-core/`, Harness-owned core skills, or generic Harness workflow files unless the user explicitly authorizes `$improve-harness`.
 
+Task/release provenance rules:
+- Capture a task `base_commit` before persisting its Task Contract, then create the Builder worktree from that captured commit so workflow-record commits do not pollute the implementation diff. Follow `docs/agents/BRANCHING.md`.
+- Final Compliance audits a pinned `release_candidate_commit`. Any later Scribe commit that records compliance or archives the plan is a workflow-record commit, not the audited candidate. Codex must verify that the post-pass diff changes only authorized workflow-record paths and report the candidate and record commit separately.
+
 Release completion requires executable/observable evidence and final Codex
 System Design compliance PASS. Agent claims alone are not evidence.
 
 See:
 - `docs/agents/ORCHESTRATION.md`
+- `docs/agents/BRANCHING.md`
 - `docs/agents/TASK_CONTRACT_TEMPLATE.md`
 - `docs/agents/QUALITY_AND_LEARNING.md`
 - `.agents/skills/deliver-system-design/SKILL.md`
