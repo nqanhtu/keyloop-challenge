@@ -9,7 +9,7 @@ A task contract is an execution handoff, not a replacement for the System Design
 ```yaml
 task_id: <EPIC/STORY/TASK identifier>
 title: <short behavior-oriented title>
-role: antigravity-builder
+role: antigravity-builder|antigravity-repairer|antigravity-integrator|antigravity-scribe
 
 objective: >
   <one concrete outcome observable from the product or repository>
@@ -27,6 +27,11 @@ requirements:
 # Load only these project rules because they apply to this work.
 rules_to_load:
   - <path#section>
+
+# Public/observable seams that TDD and verification are allowed to target.
+# These are considered pre-agreed by Codex Lead for autonomous execution.
+test_seams:
+  - <HTTP/API/UI/domain boundary>
 
 # Work that must already exist before this task is READY.
 dependencies:
@@ -53,13 +58,30 @@ forbidden:
   - silently expand scope
 
 output:
-  - coherent commit
+  - coherent commit when the role writes code or durable artifacts
   - concise evidence capsule
   - changed paths
   - validation results
   - design deviations, if any
   - unresolved risks/blockers
 ```
+
+## Autonomous TDD Seam Rule
+
+For this repository, `test_seams` in a Codex-approved Task Contract are the pre-agreed testing seams required by the installed `tdd` skill. Antigravity must not stop to ask the user to reconfirm those seams.
+
+Escalate to Codex Lead only when the declared seam conflicts with repository authority or a materially different seam would change architecture, product semantics, or verification validity. Codex escalates to the human only when the System Design and repository authority genuinely cannot resolve that choice.
+
+## Review Fixed Point and Spec Source
+
+For autonomous review:
+
+- `base_commit` is the review fixed point;
+- the completed Task Contract is the work-item spec;
+- its `design_refs` point to the authoritative product/architecture source;
+- `docs/agents/issue-tracker.md` is an adapter for the installed review skill, not a requirement to create GitHub Issues.
+
+A Reviewer should not ask the user for a fixed point or spec source when these fields are present.
 
 ## Project-Specific Contract Rules
 
@@ -118,6 +140,22 @@ It must escalate through Codex Lead when multiple interpretations would material
 - implementation scope;
 - required responsive/accessibility behavior.
 
+## Workflow Scribe Contract
+
+When Codex is running with a read-only sandbox, durable workflow state is written by a dedicated Antigravity Workflow Scribe.
+
+A Scribe task must contain the exact destination path and Codex-approved content or patch intent. The Scribe may write only project-owned workflow artifacts such as:
+
+```text
+docs/plans/active/implementation.md
+docs/agents/tasks/**
+docs/agents/evidence/**
+docs/agents/learning/**
+docs/agents/rules/**
+```
+
+The Scribe must not modify source implementation, System Design, the Harness-managed block, `.harness-core/`, or generic Harness-owned files unless a separate authorized task explicitly permits it.
+
 ## Evidence Capsule Template
 
 At completion, Antigravity returns:
@@ -155,7 +193,7 @@ A fresh Codex Reviewer should normally receive only:
 1. this completed task contract;
 2. the referenced System Design fragments;
 3. applicable promoted rules;
-4. the final diff/commit;
+4. the final diff/commit against `base_commit`;
 5. the Builder evidence capsule and relevant test output.
 
 Builder reasoning/history is not review input by default.
