@@ -8,6 +8,8 @@ Nothing advances because an agent says it succeeded.
 
 Only repository state plus executable or observable evidence can advance the workflow.
 
+Codex decides evidence sufficiency and workflow state. When Codex is read-only, Antigravity Workflow Scribe persists the exact Codex-approved state/evidence; Scribe does not originate verdicts.
+
 ## Definition of Done — Task
 
 A task is DONE only when:
@@ -104,6 +106,14 @@ Where practical, use mechanical checks/tests to prove boundaries such as:
 
 Prefer a deterministic architecture check or automated test over a textual reminder when the rule is mechanically enforceable.
 
+## Autonomous TDD Compatibility
+
+The installed TDD skill requires pre-agreed public seams. For this repository, a Codex-approved Task Contract `test_seams` section is that agreement.
+
+A Builder must not ask the human to reconfirm a declared seam. If a seam is missing or conflicts with authority, route the question to Codex Lead. Only genuinely unresolved externally observable design choices may become human blockers.
+
+Tests should remain behavior-oriented and should use the declared seam rather than implementation internals.
+
 ## Clean Release-Candidate Verification
 
 After all reviewed work is integrated, verify from a fresh clean checkout/worktree at the release-candidate commit.
@@ -139,11 +149,13 @@ NOT_APPLICABLE
 
 Each PASS should reference evidence such as code paths, tests, commands, or observed browser behavior.
 
-Only Codex Compliance may issue:
+Codex Compliance alone decides:
 
 ```text
 RELEASE: PASS
 ```
+
+Workflow Scribe may persist that verdict to `docs/agents/evidence/release-compliance.md` only after receiving the exact Codex result.
 
 ## Risk-Based Verification
 
@@ -170,12 +182,13 @@ When retry behavior suggests nondeterminism:
 
 ## Environment and Permission Boundaries
 
-The repository should eventually pin or document the runtime/package-manager/lockfile/test-command contract once application scaffolding exists.
+The repository should pin or document the runtime/package-manager/lockfile/test-command contract once application scaffolding exists.
 
 Agent permissions follow least privilege:
 
-- Codex Lead/Reviewer/Compliance: source read-only;
-- Antigravity Builder/Integrator: write only as required by assigned repository work;
+- Codex Lead/Reviewer/Tester/Compliance: repository-mutation read-only;
+- Antigravity Builder/Repairer/Integrator: write only as required by assigned implementation work;
+- Antigravity Workflow Scribe: write only Codex-approved project workflow artifacts;
 - no role changes production infrastructure, external secrets, branch protection, or unrelated external systems unless separately authorized.
 
 ## Workflow Learning Loop
@@ -193,6 +206,32 @@ failure
 -> promote to narrow rule/test/check/template when justified
 ```
 
+### Harness Boundary
+
+The autonomous learning loop is authorized only for project-owned workflow artifacts and project-native implementation checks.
+
+It may improve, through an Antigravity writer after Codex approval:
+
+```text
+docs/agents/tasks/**
+docs/agents/evidence/**
+docs/agents/learning/**
+docs/agents/rules/**
+project source tests/checks that mechanically enforce an accepted project invariant
+```
+
+It must not autonomously modify:
+
+```text
+<!-- HARNESS:BEGIN --> ... <!-- HARNESS:END -->
+.harness-core/**
+docs/WORKFLOW.md
+docs/patterns/**
+Harness-owned core skills/templates
+```
+
+Changes to Harness itself require explicit user authorization to use `$improve-harness`. This separates project learning from Harness-core maintenance and prevents the learning loop from rewriting its own governing protocol.
+
 ### Failure Taxonomy
 
 Use one primary workflow category:
@@ -206,7 +245,7 @@ Use one primary workflow category:
 
 ### Incident Record
 
-Capture workflow-relevant failures concisely:
+Capture workflow-relevant failures concisely under `docs/agents/learning/incidents/<INC-ID>.md`:
 
 ```yaml
 incident_id: INC-001
@@ -225,7 +264,7 @@ Old incidents are audit material, not default context for future Builders.
 
 Do not immediately put every incident into global instructions.
 
-A non-authoritative one-off mistake normally remains an incident/candidate first.
+A non-authoritative one-off mistake normally remains an incident/candidate first. Candidates live in `docs/agents/learning/candidates.md`.
 
 A candidate may be promoted when one or more of the following is true:
 
@@ -234,7 +273,7 @@ A candidate may be promoted when one or more of the following is true:
 - a fresh rerun demonstrates that the proposed intervention prevents the failure;
 - the rule is narrow, testable, and cheaper than repeated rediscovery.
 
-Every promoted rule should define:
+Every promoted project rule under `docs/agents/rules/` should define:
 
 ```yaml
 id: RULE-...
@@ -255,7 +294,7 @@ When learning from a reusable failure, prefer the strongest repository-owned int
 1. mechanical architecture/invariant check
 2. automated behavior test
 3. task-contract/template improvement
-4. concise scoped documentation rule
+4. concise scoped project rule
 5. prompt reminder
 ```
 
@@ -267,8 +306,8 @@ After a meaningful batch of work, Codex may audit workflow-learning records to:
 
 - deduplicate candidate lessons;
 - detect repeated root causes;
-- promote proven improvements;
-- remove obsolete candidates/rules;
-- replace textual rules with mechanical enforcement where possible.
+- recommend/promote proven project improvements through Workflow Scribe;
+- remove obsolete project candidates/rules;
+- replace textual project rules with mechanical enforcement where possible.
 
 Useful metrics include first-pass success rate, repair count, repeated failure classes, flaky-test incidents, and rules/checks that prevented recurrence. Metrics are diagnostic; they are not Scrum velocity or performance targets.
