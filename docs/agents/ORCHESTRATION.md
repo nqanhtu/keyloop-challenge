@@ -1,6 +1,8 @@
 # Autonomous Orchestration Contract
 
-This document defines how Herdr, Codex, and Antigravity collaborate on this repository.
+> Active runtime note: `docs/decisions/0002-deepseek-only-autonomous-runtime.md` supersedes provider-specific ownership. Lead/Reviewer/Tester/Compliance remain read-only roles; Builder/Repairer/Integrator/Scribe are distinct scoped writer roles. Fresh sessions preserve gate independence.
+
+This document defines how Herdr and role-separated DeepSeek-backed Codex CLI sessions collaborate on this repository.
 
 ## Core Separation of Duties
 
@@ -9,7 +11,7 @@ This document defines how Herdr, Codex, and Antigravity collaborate on this repo
 Herdr is the runtime/orchestration layer. It may:
 
 - create or resume workspaces and worktrees;
-- start Codex or Antigravity agents;
+- start role-specific DeepSeek-backed Codex CLI agents;
 - send bounded prompts;
 - wait for agent state changes;
 - collect concise results;
@@ -31,11 +33,11 @@ Codex Lead is repository-mutation read-only. It owns decisions and orchestration
 - collecting and judging evidence capsules;
 - deciding whether work advances, repairs, or blocks;
 - initiating fresh review/test/compliance sessions;
-- generating exact durable workflow content for an Antigravity Workflow Scribe to write.
+- generating exact durable workflow content for an DeepSeek Workflow Scribe to write.
 
 Codex Lead must not silently change architecture or product semantics and must not repair source implementation.
 
-### Antigravity Workflow Scribe
+### DeepSeek Workflow Scribe
 
 Workflow Scribe is the controlled writer for durable orchestration state when Codex runs read-only.
 
@@ -53,9 +55,9 @@ It must not invent requirements, architecture decisions, review verdicts, or rel
 
 Scribe and Integrator operations that target the coordination branch are serialized; there is never more than one coordination-branch writer at a time.
 
-### Antigravity Builder
+### DeepSeek Builder
 
-Antigravity is the normal implementation writer. A Builder may:
+DeepSeek is the normal implementation writer. A Builder may:
 
 - modify source and tests within the assigned scope;
 - make reversible implementation choices that do not change externally observable product semantics or System Design boundaries;
@@ -87,7 +89,7 @@ It does not receive Builder reasoning unless required to investigate a specific 
 
 Tester validates observable behavior. It does not repair source. It may orchestrate test/build commands through ordinary Herdr panes so generated artifacts such as build outputs, Playwright reports, and caches do not require giving a review agent repository-write responsibility.
 
-### Antigravity Integrator
+### DeepSeek Integrator
 
 Integrator is the implementation-side owner of merging reviewed work into the coordination/integration branch and resolving implementation-level merge conflicts. A merge conflict that implies an architectural or product choice is escalated to Codex Lead instead of guessed.
 
@@ -202,7 +204,7 @@ Parallelize only when tasks have meaningful independence and low file/seam overl
 
 ## Worktree and Single-Writer Rules
 
-- Each actively implemented branch/worktree has one Antigravity writer owner at a time.
+- Each actively implemented branch/worktree has one DeepSeek writer owner at a time.
 - Record the task ID and base commit in the task contract/evidence capsule.
 - Codex roles remain read-only for all repository mutations.
 - Two Builders must not modify the same architectural seam concurrently without an explicit integration plan.
@@ -256,7 +258,7 @@ local implementation defect
   -> same Builder when context is still trustworthy
 
 architecture/boundary violation
-  -> fresh Antigravity repair session
+  -> fresh DeepSeek repair session
 
 workflow/systemic defect
   -> repair product if needed
@@ -270,7 +272,7 @@ Autonomy must not become an infinite repair loop.
 Recommended escalation:
 
 1. first local failure -> same Builder repairs;
-2. repeated or architectural failure -> fresh Antigravity repair agent with original contract + finding + current state;
+2. repeated or architectural failure -> fresh DeepSeek Repairer with original contract + finding + current state;
 3. repeated failure after fresh repair -> Codex root-cause diagnosis and narrowed task/reproduction;
 4. if the remaining blocker requires an unavailable external dependency, missing environment capability, or a genuinely unresolved externally observable design choice -> `BLOCKED` with concise evidence.
 
@@ -278,7 +280,7 @@ The exact attempt count may be tuned, but silent unlimited retries are forbidden
 
 ## Resume and Recovery
 
-The workflow must survive terminating Codex, Antigravity, or Herdr sessions.
+The workflow must survive terminating Codex, DeepSeek, or Herdr sessions.
 
 A fresh Codex Lead resumes in this order:
 
