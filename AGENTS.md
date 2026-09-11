@@ -33,14 +33,24 @@ and behavior-level proof; do not create parallel control-plane state.
 ## Keyloop Challenge Autonomous Workflow
 
 For this repository, `docs/system-design/system-design-v1.md` is the authoritative
-system and product design for the challenge unless explicitly superseded by an
-accepted decision in `docs/decisions/`.
+system/product design and `docs/ui-system-design/ui-system-design-v1.md` is the
+authoritative UI presentation/interaction/accessibility design unless explicitly
+superseded by an accepted decision in `docs/decisions/`.
+
+For UI work, business semantics and implementation scope remain owned by the System
+Design; visual hierarchy, responsive presentation, component behavior, interaction
+states, and accessibility are owned by the UI System Design.
 
 Before orchestrating implementation, read `docs/agents/README.md` and `docs/agents/RUNTIME.md`.
 Before creating or reviewing task worktrees, also read `docs/agents/BRANCHING.md`.
+Before UI redesign work, also read `docs/agents/UI_SKILL_BOOTSTRAP.md`,
+`docs/agents/PANE_LIFECYCLE.md`, and `docs/ui-system-design/ui-system-design-v1.md`.
 
 Execution responsibilities:
 - Herdr is orchestration/lifecycle only.
+- Lead-created child panes are temporary by default and must be closed automatically
+  after their result/evidence is captured and repository state is safe; follow
+  `docs/agents/PANE_LIFECYCLE.md`.
 - The active runtime is DeepSeek-only under `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
 - All roles run as fresh or role-appropriate Codex CLI sessions backed by `deepseek-flash`; provider identity does not collapse role boundaries.
 - Lead/Auditor/Reviewer/Tester/Compliance are repository-mutation read-only.
@@ -67,6 +77,10 @@ Task/release provenance rules:
 Release completion requires executable/observable evidence and final Codex
 System Design compliance PASS. Agent claims alone are not evidence.
 
+UI delivery entry point:
+- `.agents/skills/deliver-ui-redesign/SKILL.md`
+- `docs/plans/active/ui-redesign.md`
+
 See:
 - `docs/agents/ORCHESTRATION.md`
 - `docs/agents/RUNTIME.md`
@@ -75,3 +89,4 @@ See:
 - `docs/agents/QUALITY_AND_LEARNING.md`
 - `docs/decisions/README.md`
 - `.agents/skills/deliver-system-design/SKILL.md`
+- `.agents/skills/deliver-ui-redesign/SKILL.md`
