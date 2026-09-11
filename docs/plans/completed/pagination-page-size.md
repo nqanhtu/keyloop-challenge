@@ -5,7 +5,9 @@ Date: 2026-09-11
 
 ## Status
 
-Active
+Completed
+
+Delivered on release candidate 5b24ec0; evidence at docs/agents/evidence/pagination-page-size.md.
 
 ## Outcome
 
@@ -74,8 +76,21 @@ Integrate the reviewed writer branch onto main without squashing task commits.
 
 ## Current State
 
-- [ ] V01 Authority + Implementation
-- [ ] V02 Integration
-- [ ] V03 Verification
-- [ ] V04 Evidence + plan completion
+- [x] V01 Authority + Implementation
+- [x] V02 Integration
+- [x] V03 Verification (found F-01; repaired by V03b)
+- [x] V03b Repair (added after verification)
+- [x] V04 Evidence + plan completion
+
+V01 result: Decision 0004 plus the System Design and UI System Design updates and the URL-owned page-size control, delivered in three commits and integrated as main 3e9c7b6.
+
+V02 result: integrated on main as 3e9c7b6.
+
+V03 result: fresh independent verification found F-01 (unsupported URL collection values were not normalized); every gate passed but the defect blocked completion.
+
+V03b result: normalization repaired in 24d2745 (route-boundary normalization plus a defensive query builder) and integrated as main 5b24ec0.
+
+V03c result: fresh independent re-verification on 5b24ec0 confirmed F-01 fixed at all three tiers with no regression; npm ci, typecheck, lint, 281 unit tests, build and 42 browser e2e tests all passed.
+
+V04 result: evidence recorded and the plan archived to docs/plans/completed/pagination-page-size.md.
 -----END PLAN-----
