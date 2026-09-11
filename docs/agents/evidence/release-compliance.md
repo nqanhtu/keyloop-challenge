@@ -1,3 +1,5 @@
+> Superseded for the UI redesign release. The current release-compliance matrix is `docs/agents/evidence/U08.md` (UI REDESIGN: PASS on candidate 93a62fd). This file records the earlier System Design implementation release.
+
 # Release Compliance — Intelligent Inventory Dashboard
 
 ## Audit Identity

@@ -4,7 +4,9 @@ Date: 2026-09-11
 
 ## Status
 
-Active
+Completed
+
+Release: UI REDESIGN: PASS on release candidate 93a62fd; the compliance matrix is docs/agents/evidence/U08.md.
 
 ## Outcome
 
@@ -247,8 +249,8 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 - [x] U05 Fresh Accessibility Audit
 - [x] U06 Bounded Repairs if required
 - [x] U07 Full Regression
-- [ ] U08 Fresh UI Compliance
-- [ ] UI REDESIGN: PASS
+- [x] U08 Fresh UI Compliance
+- [x] UI REDESIGN: PASS
 
 U01 result: e605376 installed the four approved project-local UI skills (design-systems-frontend-architecture, frontend-design, check-fix-accessibility, webapp-testing).
 
@@ -268,4 +270,4 @@ U06b result: the remaining modal background-scroll residual (R-01) repaired in d
 
 U07 result: full regression on the clean release candidate 93a62fd4e9220eb21dc0c6e2cebe0e6ba7609273 - npm ci, typecheck, lint, 253 unit tests, build and 36/36 browser e2e all PASS, architecture suites 85/85 PASS, no test weakened; evidence at docs/agents/evidence/U07.md.
 
-U08 status: fresh read-only UI compliance audit dispatched against candidate 93a62fd4e9220eb21dc0c6e2cebe0e6ba7609273.
+U08 result: fresh read-only compliance audit against candidate 93a62fd4e9220eb21dc0c6e2cebe0e6ba7609273 decided UI REDESIGN: PASS - 127 PASS, 0 FAIL, 0 UNVERIFIED, 4 NOT_APPLICABLE; it independently re-ran typecheck, lint, 253 unit tests, build and 36/36 e2e, re-derived all U04/U05/U06b defects as fixed, and found no System Design boundary violation; evidence at docs/agents/evidence/U08.md.
