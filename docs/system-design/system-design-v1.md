@@ -483,6 +483,11 @@ GET /vehicles
 
 Filtering, sorting, and pagination are server-side. Default ordering is `inventoryAgeDays DESC`.
 
+`pageSize` is URL-owned and user-selectable (Decision 0004): the allowed values
+are 25, 50, and 100 records per page, the default is 50, and the default value
+50 is omitted from the URL. The client always sends the effective page size
+with the server query.
+
 ```ts
 type VehicleListResponse = {
   data: VehicleView[];
@@ -648,7 +653,7 @@ React App
 | State | Tool | Examples |
 |---|---|---|
 | Server state | TanStack Query | vehicles, summary, statuses, action history |
-| URL state | TanStack Router | filters, sorting, page |
+| URL state | TanStack Router | filters, sorting, page, page size |
 | Local UI state | React state | detail surface, note draft, focus |
 
 Example:
@@ -731,7 +736,9 @@ Success reconciles with the authoritative response. Failure rolls back and resto
 
 ### 6.8 Server-side list operations
 
-Filtering, sorting, and pagination happen on the server. Approximately 50 records are rendered per page.
+Filtering, sorting, and pagination happen on the server. Page size is URL-owned
+and user-selectable, with allowed values of 25, 50, and 100 and a default of 50;
+changing it resets the page to 1. The server applies the selected page size.
 
 Virtualization is intentionally omitted because pagination already bounds render cost.
 
