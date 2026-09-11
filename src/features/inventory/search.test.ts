@@ -4,6 +4,7 @@ import {
   PAGE_SIZE_OPTIONS,
   applyPageSizeChange,
   clearAllFilters,
+  normalizePageSize,
   parseInventorySearch,
   pruneInventorySearch,
   toVehicleListQuery,
@@ -51,5 +52,51 @@ describe('Decision 0004 — URL-owned page size', () => {
 
   it('keeps the page size when clearing collection filters', () => {
     expect(clearAllFilters({ make: 'BMW', page: 2, pageSize: 100 })).toEqual({ pageSize: 100 });
+  });
+});
+
+/**
+ * F-01: an unsupported value typed into the URL must never become the effective
+ * collection state. Every consumer reads the sanitized InventorySearch, so the
+ * request, the rendered page, and the page count always agree with the design.
+ */
+describe('F-01 — unsupported URL values never become the effective state', () => {
+  it.each(['37', 'abc', '0', '1000', '-5', '3.5', ''])(
+    'normalizes an unsupported pageSize (%s) to the default 50',
+    (raw) => {
+      expect(normalizePageSize(raw)).toBe(DEFAULT_PAGE_SIZE);
+      // The URL state keeps nothing for an unsupported size, so the effective
+      // size is the documented default at every consumer.
+      expect(parseInventorySearch({ pageSize: raw })).toEqual({});
+      expect(toVehicleListQuery(parseInventorySearch({ pageSize: raw })).pageSize).toBe(
+        DEFAULT_PAGE_SIZE,
+      );
+    },
+  );
+
+  it('treats an explicit pageSize=50 as the default rather than URL state', () => {
+    expect(normalizePageSize('50')).toBe(DEFAULT_PAGE_SIZE);
+    expect(parseInventorySearch({ pageSize: '50' })).toEqual({});
+    expect(toVehicleListQuery(parseInventorySearch({ pageSize: '50' })).pageSize).toBe(
+      DEFAULT_PAGE_SIZE,
+    );
+  });
+
+  it('is defensive in the query builder even when a caller passes an unsupported size', () => {
+    expect(toVehicleListQuery({ pageSize: 37 }).pageSize).toBe(DEFAULT_PAGE_SIZE);
+    expect(toVehicleListQuery({ pageSize: 0 }).pageSize).toBe(DEFAULT_PAGE_SIZE);
+    expect(toVehicleListQuery({ pageSize: 1000 }).pageSize).toBe(DEFAULT_PAGE_SIZE);
+    expect(toVehicleListQuery({ pageSize: -5 }).pageSize).toBe(DEFAULT_PAGE_SIZE);
+    expect(toVehicleListQuery({ pageSize: 25 }).pageSize).toBe(25);
+    expect(toVehicleListQuery({ pageSize: 100 }).pageSize).toBe(100);
+  });
+
+  it('normalizes an unsupported page and sort to the designed defaults', () => {
+    expect(parseInventorySearch({ page: 'abc' })).toEqual({});
+    expect(toVehicleListQuery(parseInventorySearch({ page: 'abc' })).page).toBe(1);
+    expect(parseInventorySearch({ sort: 'bogus' })).toEqual({});
+    expect(toVehicleListQuery(parseInventorySearch({ sort: 'bogus' })).sort).toBe(
+      'inventoryAgeDays:desc',
+    );
   });
 });
