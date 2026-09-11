@@ -157,9 +157,9 @@ All 49 requirements begin `PLANNED`; task state and evidence, not this registry 
 | T03 | Persistent append-only action/status service and summary completion | T02 DONE | C | DONE |
 | T04 | Responsive inventory dashboard and URL-owned discovery UX | T03 DONE | H | DONE |
 | T05 | Responsive detail/action form/history + optimistic mutation | T03 DONE | H | DONE |
-| T06 | Cross-feature consistency, errors, freshness, loading, instrumentation | T04 + T05 DONE | H | READY |
-| T07 | Browser/accessibility proof across desktop/tablet/mobile | T06 DONE | H | PLANNED |
-| T08 | Architecture/scope invariant proof | T06 DONE | C | PLANNED |
+| T06 | Cross-feature consistency, errors, freshness, loading, instrumentation | T04 + T05 DONE | H | DONE |
+| T07 | Browser/accessibility proof across desktop/tablet/mobile | T06 DONE | H | READY |
+| T08 | Architecture/scope invariant proof | T06 DONE | C | READY |
 
 ```mermaid
 flowchart TD
@@ -187,13 +187,14 @@ Execution waves:
 - Wave 3: T07 and T08 may run in parallel because their verification surfaces are independent.
 - Wave 4: clean pinned release candidate, fresh Compliance, then workflow-only compliance record/archive.
 
-Current ready frontier: **T06 only**.
+Current ready frontier: **T07 and T08 in parallel** — their verification surfaces are independent (Playwright e2e + config vs. src/test architecture checks); Lead confirmed no file/seam overlap.
 
 T01 integrated state: base `c166671e61df0d36617090f226a4ffaf79960c23`; implementation `2b15a1519ddfe5ed805a97341099e617b22eca93`; tooling repair `6ccd5a615643469c82e21ff2bd1faa69844f4b17`; integration commits `55fe9416ebf8d4b24bab338f53400d2446aa9081` and `46a90b93c085050126b04bc48769d7fc2aa1cd4a`; evidence `docs/agents/evidence/T01.md`.
 T02 integrated state: base `9cc7c62199a4b0ecb8d6ea51721200814e163035`; implementation `30891cdb5307cb5e72920ffbbe09e0d8914514b7`; integration commit `92bdc3f26ce7e88261a432279bdbbdae6a009a53`; evidence `docs/agents/evidence/T02.md`.
 T03 integrated state: base `129f6480503138aabcf9c8ab4bb348775ac86afb`; implementation `3817c9cdf2f3bde2cd8b2abd1c71f7343bdc81f8`; integration commit `ab8fb5ee5c5283d593f7d3b687a6957cff9cdb12`; evidence `docs/agents/evidence/T03.md`.
 T04 integrated state: base `b8e5a0adf5218a5f4d84b06999ca84fc6e0b0b91`; implementation `79d28b4a48fc6171aec1fda295c9a4c95e3c8637`; integration commit `4c28564e8cccc1ee69cfa402d87140cd7a1f12e7`; evidence `docs/agents/evidence/T04.md`.
 T05 integrated state: base `38ff2a9641e8ead7acf96aad8d1d1fff864a825e`; implementation `463d0eb9e0542187aea013ba0406ba7e5f0b82aa` plus test-only repair `03e69bf044f3a70e76907258b7c544d05c8745a7`; integration commit `a631fee2fc407aef431ffad842b011b65b454e97`; evidence `docs/agents/evidence/T05.md`.
+T06 integrated state: base `1dd7cb6517c546dace4a625916135d4dd2401699`; implementation `7e77e773adf7c76801379f209f226ff0630e844e`; integration commit `eb1056ec69b4632da78dae3487724e5dcaa21dd0`; evidence `docs/agents/evidence/T06.md`.
 
 Do not pre-fill future task `base_commit` values. A dependent task captures its base only after dependencies are integrated and verified.
 
@@ -390,7 +391,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] T02 reaches DONE.
 - [x] T03 reaches DONE.
 - [x] T04 and T05 reach DONE.
-- [ ] T06 reaches DONE.
+- [x] T06 reaches DONE.
 - [ ] T07 and T08 reach DONE.
 - [ ] Clean release-candidate verification passes.
 - [ ] Fresh DeepSeek Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
@@ -421,6 +422,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - 2026-09-11: Accept T04 with three low findings and one info finding: STD-01 (architecture checks cover only src/app+src/api) is carried to T08; STD-02 (responsive proof is jsdom branch-selection, not real layout) is carried to T07; STD-03 (static aging-threshold copy) and SPEC-F1 (tablet filters sheet-only) are accepted as non-blocking.
 - 2026-09-11: Accept T05 after a test-only repair: the Standards review finding F1 (heavy jsdom dashboard tests exceeded the 5000 ms default under load) was fixed by a repo-level testTimeout and explicit test timeouts with no assertion change, then independently re-verified green under induced CPU load.
 - 2026-09-11: Record flow-relevant workstation load as an environment factor; the T05 repair keeps required validation reliable without weakening evidence (see docs/agents/learning/incidents/INC-001.md).
+- 2026-09-11: Accept T06 with two low findings and one info observation (test-helper duplication; default no-op instrumentation path vs injectable sink; results region gated on isSuccess). None is a boundary or acceptance violation; all recorded in docs/agents/evidence/T06.md.
 
 Lasting mock product/behavior decisions remain in `docs/decisions/0001-mock-implementation-baseline.md`, not duplicated as new product authority here.
 
