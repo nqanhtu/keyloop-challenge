@@ -8,7 +8,7 @@ Nothing advances because an agent says it succeeded.
 
 Only repository state plus executable or observable evidence can advance the workflow.
 
-Codex decides evidence sufficiency and workflow state. When Codex is read-only, Antigravity Workflow Scribe persists the exact Codex-approved state/evidence; Scribe does not originate verdicts.
+Codex decides evidence sufficiency and workflow state. When Codex is read-only, DeepSeek Workflow Scribe persists the exact Codex-approved state/evidence; Scribe does not originate verdicts.
 
 ## Definition of Done — Task
 
@@ -186,9 +186,9 @@ The repository should pin or document the runtime/package-manager/lockfile/test-
 
 Agent permissions follow least privilege:
 
-- Codex Lead/Reviewer/Tester/Compliance: repository-mutation read-only;
-- Antigravity Builder/Repairer/Integrator: write only as required by assigned implementation work;
-- Antigravity Workflow Scribe: write only Codex-approved project workflow artifacts;
+- DeepSeek Lead/Reviewer/Tester/Compliance: repository-mutation read-only and separated into fresh sessions where independence is required;
+- DeepSeek Builder/Repairer/Integrator: write only as required by assigned implementation work;
+- DeepSeek Workflow Scribe: write only Codex-approved project workflow artifacts;
 - no role changes production infrastructure, external secrets, branch protection, or unrelated external systems unless separately authorized.
 
 ## Workflow Learning Loop
@@ -210,7 +210,7 @@ failure
 
 The autonomous learning loop is authorized only for project-owned workflow artifacts and project-native implementation checks.
 
-It may improve, through an Antigravity writer after Codex approval:
+It may improve, through an DeepSeek writer role after Codex approval:
 
 ```text
 docs/agents/tasks/**
