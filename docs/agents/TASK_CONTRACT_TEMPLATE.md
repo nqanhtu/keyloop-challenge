@@ -21,6 +21,10 @@ worktree: <assigned worktree/branch>
 design_refs:
   - docs/system-design/system-design-v1.md#<section>
 
+# UI tasks also reference the dedicated UI authority.
+ui_design_refs:
+  - docs/ui-system-design/ui-system-design-v1.md#<section>
+
 requirements:
   - <REQ-ID or concise requirement>
 
@@ -32,6 +36,13 @@ rules_to_load:
 # These are considered pre-agreed by Codex Lead for autonomous execution.
 test_seams:
   - <HTTP/API/UI/domain boundary>
+
+# UI tasks should make visual/responsive/accessibility proof explicit.
+visual_seams:
+  - <viewport + visual hierarchy/layout behavior>
+
+accessibility_seams:
+  - <keyboard/focus/semantics/contrast/touch behavior>
 
 # Work that must already exist before this task is READY.
 dependencies:
@@ -78,7 +89,8 @@ For autonomous review:
 
 - `base_commit` is the review fixed point;
 - the completed Task Contract is the work-item spec;
-- its `design_refs` point to the authoritative product/architecture source;
+- its `design_refs` point to authoritative product/architecture sources;
+- UI tasks also use `ui_design_refs` as the authoritative presentation/interaction/accessibility source;
 - `docs/agents/issue-tracker.md` is an adapter for the installed review skill, not a requirement to create GitHub Issues.
 
 A Reviewer should not ask the user for a fixed point or spec source when these fields are present.
@@ -134,6 +146,7 @@ DeepSeek Builder may autonomously choose local implementation details such as co
 It must escalate through Codex Lead when multiple interpretations would materially change:
 
 - externally observable behavior;
+- approved UI hierarchy, responsive presentation, or accessibility behavior;
 - API semantics;
 - business rules;
 - ownership or module boundaries;
