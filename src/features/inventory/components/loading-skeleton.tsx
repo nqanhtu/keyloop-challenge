@@ -18,7 +18,11 @@ function SkeletonBars({ count, className }: SkeletonBarsProps) {
   return (
     <>
       {Array.from({ length: count }, (_, index) => (
-        <span key={index} className={`skeleton ${className}`} aria-hidden="true" />
+        <span
+          key={index}
+          className={`ui-skeleton ui-skeleton--shimmer ${className}`}
+          aria-hidden="true"
+        />
       ))}
     </>
   );
@@ -48,8 +52,8 @@ export function KpiCardsSkeleton() {
         testId="kpi-skeleton"
         className="kpi-skeleton"
       >
-        <span className="skeleton skeleton--kpi-label" aria-hidden="true" />
-        <span className="skeleton skeleton--kpi-value" aria-hidden="true" />
+        <span className="ui-skeleton ui-skeleton--shimmer skeleton--kpi-label" aria-hidden="true" />
+        <span className="ui-skeleton ui-skeleton--shimmer skeleton--kpi-value" aria-hidden="true" />
       </RegionSkeleton>
     </section>
   );
@@ -77,6 +81,23 @@ export function VehicleDetailSkeleton() {
       className="vehicle-detail-skeleton"
     >
       <SkeletonBars count={4} className="skeleton--detail-row" />
+    </RegionSkeleton>
+  );
+}
+
+/**
+ * Action-history region skeleton (UI System Design §16). History loads
+ * independently of the vehicle summary, so it owns a local skeleton instead of
+ * blanking the whole detail surface.
+ */
+export function ActionHistorySkeleton() {
+  return (
+    <RegionSkeleton
+      label="Loading action history"
+      testId="action-history-skeleton"
+      className="action-history-skeleton"
+    >
+      <SkeletonBars count={2} className="skeleton--history-row" />
     </RegionSkeleton>
   );
 }

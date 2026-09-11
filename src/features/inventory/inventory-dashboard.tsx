@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { VehicleSortOption } from '../../api/types';
+import { Button, VisuallyHidden } from '../../app/ui';
 import { VehicleDetail } from '../actions/vehicle-detail';
 import { clientErrorMessage } from '../errors/business-errors';
 import { useAppEnvironment } from '../observability/environment';
@@ -101,17 +102,18 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   return (
     <div className="inventory-dashboard">
       <header className="inventory-dashboard__header">
-        {/* System Design 6.10: focus fallback when the detail was opened without
-         * a click, so closing it never drops focus on <body>. */}
-        <h1 tabIndex={-1} data-focus-fallback="page-heading">
-          Keyloop Inventory Command Center
-        </h1>
-        <p className="inventory-dashboard__subtitle">
-          Discover aging inventory and the actions already taken on it.
-        </p>
+        <div className="inventory-dashboard__identity">
+          {/* System Design 6.10: focus fallback when the detail was opened
+           * without a click, so closing it never drops focus on <body>. */}
+          <h1 tabIndex={-1} data-focus-fallback="page-heading">
+            Keyloop Inventory Command Center
+          </h1>
+          <p className="inventory-dashboard__subtitle">
+            Discover aging inventory and the actions already taken on it.
+          </p>
+        </div>
+        <FreshnessNotice freshness={freshness} isLoading={summaryQuery.isPending} />
       </header>
-
-      <FreshnessNotice freshness={freshness} />
 
       {summaryQuery.isPending ? (
         <KpiCardsSkeleton />
@@ -163,14 +165,12 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
           </div>
 
           {tier !== 'desktop' && (
-            <button
-              type="button"
-              className="button"
+            <Button
               aria-expanded={isFilterSheetOpen}
               onClick={() => setFilterSheetOpen(true)}
             >
               Filters
-            </button>
+            </Button>
           )}
         </div>
 
@@ -194,6 +194,16 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         tabIndex={-1}
         data-focus-fallback="inventory-results"
       >
+        <div className="inventory-results__header">
+          <h2 className="inventory-results__title">Inventory</h2>
+          {listQuery.isSuccess && (
+            <p className="inventory-results__count" data-testid="inventory-results-count">
+              <VisuallyHidden>Inventory count: </VisuallyHidden>
+              {vehicles.length} of {total} vehicles
+            </p>
+          )}
+        </div>
+
         {listQuery.isPending && <InventoryListSkeleton />}
 
         {listQuery.isError && (

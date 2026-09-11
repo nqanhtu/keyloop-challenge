@@ -1,4 +1,5 @@
 import type { VehicleActionStatus } from '../../../api/types';
+import { Button } from '../../../app/ui';
 import type { InventorySearch } from '../search';
 import { INVENTORY_STATUS_OPTIONS } from '../search';
 
@@ -99,20 +100,20 @@ export function ActiveFilterChips({ chips, onRemove, onClearAll }: ActiveFilterC
         {chips.map((chip) => (
           <li key={chip.key} className="filter-chip">
             <span className="filter-chip__label">{chip.label}</span>
-            <button
-              type="button"
+            <Button
+              variant="quiet"
               className="filter-chip__remove"
               aria-label={`Remove ${chip.removeLabel} filter`}
               onClick={() => onRemove(chip)}
             >
               <span aria-hidden="true">×</span>
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
-      <button type="button" className="button" onClick={onClearAll} aria-label="Clear all filters">
+      <Button onClick={onClearAll} aria-label="Clear all filters">
         Clear all
-      </button>
+      </Button>
     </div>
   );
 }
