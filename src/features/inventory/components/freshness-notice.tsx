@@ -2,6 +2,11 @@ import type { FreshnessState } from '../freshness';
 
 export interface FreshnessNoticeProps {
   freshness: FreshnessState | null;
+  /**
+   * True while the sync metadata is still unknown. The header keeps its shape
+   * with a skeleton instead of collapsing and shifting the page (UI §16).
+   */
+  isLoading?: boolean;
 }
 
 /**
@@ -9,9 +14,20 @@ export interface FreshnessNoticeProps {
  * when the freshness threshold is exceeded, warn that inventory may be
  * outdated. The inventory itself stays rendered below the notice.
  */
-export function FreshnessNotice({ freshness }: FreshnessNoticeProps) {
+export function FreshnessNotice({ freshness, isLoading = false }: FreshnessNoticeProps) {
   if (!freshness) {
-    return null;
+    if (!isLoading) {
+      return null;
+    }
+
+    return (
+      <div className="freshness-notice" role="status" aria-label="Loading inventory freshness">
+        <span
+          className="ui-skeleton ui-skeleton--shimmer freshness-notice__placeholder"
+          aria-hidden="true"
+        />
+      </div>
+    );
   }
 
   return (

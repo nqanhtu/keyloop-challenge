@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './app/styles/tokens.css';
+import './app/styles/base.css';
+import './app/styles/primitives.css';
 import { App } from './app/App';
 import {
   defaultInstrumentation,

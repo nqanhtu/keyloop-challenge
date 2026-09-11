@@ -12,7 +12,7 @@ import { parseInventorySearch } from '../features/inventory/search';
 
 function RootComponent() {
   return (
-    <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="app-shell">
       <Outlet />
     </div>
   );

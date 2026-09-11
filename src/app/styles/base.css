@@ -1,0 +1,80 @@
+/*
+ * U03 — Base layer (UI System Design §7, §17, §19).
+ *
+ * Minimal reset, base typography, the app shell, a single explicit
+ * `:focus-visible` ring, and a global reduced-motion guard. Everything is
+ * layered so it composes with the token and component layers.
+ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--ui-canvas);
+    color: var(--ui-text-primary);
+    font-family: var(--ui-font-sans);
+    font-size: var(--ui-text-16);
+    line-height: var(--ui-leading-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: var(--ui-leading-title);
+    color: var(--ui-text-primary);
+    font-weight: var(--ui-weight-semibold);
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  /* The route shell was previously an inline React style object. */
+  .app-shell {
+    min-height: 100vh;
+    padding: var(--ui-space-32) var(--ui-space-24);
+  }
+
+  @media (max-width: 767px) {
+    .app-shell {
+      padding: var(--ui-space-24) var(--ui-space-16);
+    }
+  }
+
+  /*
+   * UI §17.5: every keyboard-focused control shows an explicit ring. `:where`
+   * keeps specificity at zero so component styles can still refine a control
+   * without losing the ring.
+   */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ui-focus);
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * UI §19: reduced motion removes/shortens non-essential transitions and stops
+ * the skeleton shimmer. This is the documented, intentional use of
+ * `!important` — it must win over any component animation.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

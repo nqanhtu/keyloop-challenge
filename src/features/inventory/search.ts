@@ -148,9 +148,13 @@ export function applyPageChange(search: InventorySearch, page: number): Inventor
   return pruneInventorySearch({ ...search, page });
 }
 
-/** Clear all removes every filter and returns to the first page, keeping sort. */
+/**
+ * Clear all removes every collection filter and returns to the first page,
+ * keeping sort. UI System Design §13.3: it must not destroy unrelated
+ * vehicle-detail context, so the URL-owned `vehicleId` survives.
+ */
 export function clearAllFilters(search: InventorySearch): InventorySearch {
-  return pruneInventorySearch({ sort: search.sort });
+  return pruneInventorySearch({ sort: search.sort, vehicleId: search.vehicleId });
 }
 
 /**

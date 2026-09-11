@@ -1,6 +1,7 @@
 import { createColumnHelper, rowPaginationFeature, tableFeatures, useTable } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { VehicleView } from '../../../api/types';
+import { Button } from '../../../app/ui';
 import { AgingIndicator } from './aging-indicator';
 
 const features = tableFeatures({ rowPaginationFeature });
@@ -26,15 +27,14 @@ function selectVehicleControl(
   onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void,
 ) {
   return (
-    <button
-      type="button"
-      className="button vehicle-table__select"
+    <Button
+      className="vehicle-table__select"
       onClick={(event) => onSelectVehicle(vehicle.vehicleId, event.currentTarget)}
       data-vehicle-detail-trigger={vehicle.vehicleId}
       aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
     >
       Details
-    </button>
+    </Button>
   );
 }
 
@@ -135,30 +135,37 @@ export function VehicleTable({
   });
 
   return (
-    <table className={`vehicle-table vehicle-table--${density}`} data-density={density}>
-      <caption>Inventory vehicles</caption>
-      <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th key={header.id} scope="col">
-                {header.isPlaceholder ? null : <table.FlexRender header={header} />}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getAllCells().map((cell) => (
-              <td key={cell.id}>
-                <table.FlexRender cell={cell} />
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    /*
+     * UI §11.1 / §17.6: a dense table keeps its real table semantics but owns
+     * its horizontal scroll, so the page itself never overflows at large text
+     * sizes or narrow viewports.
+     */
+    <div className="vehicle-table-scroll">
+      <table className={`vehicle-table vehicle-table--${density}`} data-density={density}>
+        <caption>Inventory vehicles</caption>
+        <thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th key={header.id} scope="col">
+                  {header.isPlaceholder ? null : <table.FlexRender header={header} />}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id}>
+              {row.getAllCells().map((cell) => (
+                <td key={cell.id}>
+                  <table.FlexRender cell={cell} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

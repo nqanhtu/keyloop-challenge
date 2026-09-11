@@ -1,4 +1,5 @@
 import type { VehicleView } from '../../../api/types';
+import { Button } from '../../../app/ui';
 import { AgingIndicator } from './aging-indicator';
 
 export interface VehicleCardsProps {
@@ -16,36 +17,44 @@ export function VehicleCards({ vehicles, onSelectVehicle }: VehicleCardsProps) {
     <ul className="vehicle-cards" aria-label="Inventory vehicles">
       {vehicles.map((vehicle) => (
         <li key={vehicle.vehicleId} className="vehicle-card">
-          <p className="vehicle-card__title">
-            {vehicle.make} {vehicle.model}
-          </p>
-          <dl className="vehicle-card__details">
-            <div className="vehicle-card__detail">
-              <dt>Age</dt>
-              <dd>{vehicle.inventoryAgeDays} days</dd>
-            </div>
-            <div className="vehicle-card__detail">
-              <dt>Aging</dt>
-              <dd>
-                <AgingIndicator isAging={vehicle.isAging} />
-              </dd>
-            </div>
-            <div className="vehicle-card__detail">
-              <dt>Current action</dt>
-              <dd>
-                {vehicle.currentAction ? vehicle.currentAction.status.label : 'No current action'}
-              </dd>
-            </div>
-          </dl>
-          <button
-            type="button"
-            className="button vehicle-card__select"
-            onClick={(event) => onSelectVehicle(vehicle.vehicleId, event.currentTarget)}
-            data-vehicle-detail-trigger={vehicle.vehicleId}
-            aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
-          >
-            Details
-          </button>
+          <article className="vehicle-card__body">
+            <header className="vehicle-card__header">
+              <p className="vehicle-card__title">
+                {vehicle.make} {vehicle.model}
+              </p>
+              <span className="vehicle-card__vin">{vehicle.vin}</span>
+            </header>
+            <dl className="vehicle-card__details">
+              <div className="vehicle-card__detail">
+                <dt>Age</dt>
+                <dd>{vehicle.inventoryAgeDays} days</dd>
+              </div>
+              <div className="vehicle-card__detail">
+                <dt>Aging</dt>
+                <dd>
+                  <AgingIndicator isAging={vehicle.isAging} />
+                </dd>
+              </div>
+              <div className="vehicle-card__detail">
+                <dt>Status</dt>
+                <dd>{vehicle.upstreamStatus}</dd>
+              </div>
+              <div className="vehicle-card__detail">
+                <dt>Current action</dt>
+                <dd>
+                  {vehicle.currentAction ? vehicle.currentAction.status.label : 'No current action'}
+                </dd>
+              </div>
+            </dl>
+            <Button
+              className="vehicle-card__select"
+              onClick={(event) => onSelectVehicle(vehicle.vehicleId, event.currentTarget)}
+              data-vehicle-detail-trigger={vehicle.vehicleId}
+              aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
+            >
+              Details
+            </Button>
+          </article>
         </li>
       ))}
     </ul>
