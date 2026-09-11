@@ -242,9 +242,9 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 
 - [x] U01 Skill Bootstrap
 - [x] U02 UI Architecture / Implementation Plan
-- [ ] U03 Visual Redesign Implementation
-- [ ] U04 Fresh Visual + Responsive Browser Review
-- [ ] U05 Fresh Accessibility Audit
+- [x] U03 Visual Redesign Implementation
+- [x] U04 Fresh Visual + Responsive Browser Review
+- [x] U05 Fresh Accessibility Audit
 - [ ] U06 Bounded Repairs if required
 - [ ] U07 Full Regression
 - [ ] U08 Fresh UI Compliance
@@ -253,3 +253,11 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 U01 result: e605376 installed the four approved project-local UI skills (design-systems-frontend-architecture, frontend-design, check-fix-accessibility, webapp-testing).
 
 U02 result: UI architecture plan and the bounded U03 visual-redesign Task Contract persisted at docs/agents/tasks/U03.md; Codex Lead resolved all six architect open questions from repository authority.
+
+U03 result: implemented in three commits (fd3ce7f, 03d1439, ab62ac2) on task/u03-ui-redesign and integrated as main 043069e; evidence at docs/agents/evidence/U03.md.
+
+U04 result: fresh browser review at 1280x800, 834x1112 and 390x844 recorded 9 findings (1 high, 5 medium, 3 low); evidence at docs/agents/evidence/U04.md.
+
+U05 result: fresh accessibility audit recorded 5 findings (2 high, 2 medium, 1 low); focus containment and muted-token contrast are the release-blocking items; evidence at docs/agents/evidence/U05.md.
+
+U06 status: repair task dispatched from the reconciled U04 and U05 finding set; U03/U04/U05 checkboxes stay marked as reviewed, not as released.
