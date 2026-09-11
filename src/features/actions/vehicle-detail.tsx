@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import type { VehicleActionSummary, VehicleView } from '../../api/types';
+import { Button } from '../../app/ui';
 import { clientErrorMessage } from '../errors/business-errors';
 import { AgingIndicator } from '../inventory/components/aging-indicator';
 import { VehicleDetailSkeleton } from '../inventory/components/loading-skeleton';
 import { RegionalError } from '../inventory/components/regional-error';
 import type { ViewportTier } from '../inventory/use-viewport-tier';
-import { ActionHistory } from './action-history';
+import { ActionHistory, formatActionTimestamp } from './action-history';
 import { CreateActionForm } from './action-form';
 import { useVehicleActions, useVehicleDetail } from './queries';
 import './vehicle-detail.css';
@@ -126,49 +127,58 @@ export function VehicleDetail({
   }, [onClose]);
 
   return (
-    <div
-      className={`vehicle-detail vehicle-detail--${variant}`}
-      role="dialog"
-      aria-modal="true"
-      aria-label={vehicle ? `Vehicle detail: ${vehicle.make} ${vehicle.model}` : 'Vehicle detail'}
-      data-variant={variant}
-    >
-      <header className="vehicle-detail__header">
-        <h2>Vehicle detail</h2>
-        <button
-          ref={closeButtonRef}
-          type="button"
-          className="button"
-          onClick={onClose}
-          aria-label="Close vehicle detail"
-        >
-          Close
-        </button>
-      </header>
+    <>
+      {/* UI §7.2 / §17.8: a modal surface needs a backdrop so the drawer/sheet
+       * reads as layered above the page rather than as a floating box. */}
+      <div className="vehicle-detail-scrim" aria-hidden="true" onClick={onClose} />
+      <div
+        className={`vehicle-detail vehicle-detail--${variant}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={vehicle ? `Vehicle detail: ${vehicle.make} ${vehicle.model}` : 'Vehicle detail'}
+        data-variant={variant}
+      >
+        <header className="vehicle-detail__header">
+          <h2>Vehicle detail</h2>
+          <Button ref={closeButtonRef} onClick={onClose} aria-label="Close vehicle detail">
+            Close
+          </Button>
+        </header>
 
-      {vehicle ? (
-        <VehicleSummary vehicle={vehicle} />
-      ) : detailQuery.isError ? (
-        <section className="vehicle-detail__section" aria-label="Vehicle summary">
-          <RegionalError
-            region="vehicle summary"
-            message={clientErrorMessage(detailQuery.error, 'Unable to load this vehicle.')}
-            onRetry={() => void detailQuery.refetch()}
-          />
+        {vehicle ? (
+          <VehicleSummary vehicle={vehicle} />
+        ) : detailQuery.isError ? (
+          <section className="vehicle-detail__section" aria-label="Vehicle summary">
+            <RegionalError
+              region="vehicle summary"
+              message={clientErrorMessage(detailQuery.error, 'Unable to load this vehicle.')}
+              onRetry={() => void detailQuery.refetch()}
+            />
+          </section>
+        ) : (
+          <VehicleDetailSkeleton />
+        )}
+
+        <CurrentAction action={vehicle?.currentAction ?? null} />
+
+        <section className="vehicle-detail__section" aria-label="Record an action">
+          <h3>Record an action</h3>
+          <CreateActionForm vehicleId={vehicleId} />
         </section>
-      ) : (
-        <VehicleDetailSkeleton />
-      )}
 
-      <CurrentAction action={vehicle?.currentAction ?? null} />
-
-      <section className="vehicle-detail__section" aria-label="Record an action">
-        <h3>Record an action</h3>
-        <CreateActionForm vehicleId={vehicleId} />
-      </section>
-
-      <ActionHistory actions={historyQuery.data ?? []} />
-    </div>
+        <ActionHistory
+          actions={historyQuery.data ?? []}
+          isPending={historyQuery.isPending}
+          isError={historyQuery.isError}
+          errorMessage={
+            historyQuery.isError
+              ? clientErrorMessage(historyQuery.error, 'Unable to load action history.')
+              : undefined
+          }
+          onRetry={() => void historyQuery.refetch()}
+        />
+      </div>
+    </>
   );
 }
 
@@ -219,6 +229,21 @@ function CurrentAction({ action }: { action: VehicleActionSummary | null }) {
       ) : (
         <div className="vehicle-detail__current">
           <p className="vehicle-detail__current-status">{action.status.label}</p>
+          {/* UI §14.2: the current action carries actor, timestamp and note. */}
+          <dl className="vehicle-detail__current-meta">
+            {action.createdByDisplayName ? (
+              <div className="vehicle-detail__current-meta-item">
+                <dt>Actor</dt>
+                <dd>{action.createdByDisplayName}</dd>
+              </div>
+            ) : null}
+            <div className="vehicle-detail__current-meta-item">
+              <dt>Recorded</dt>
+              <dd>
+                <time dateTime={action.createdAt}>{formatActionTimestamp(action.createdAt)}</time>
+              </dd>
+            </div>
+          </dl>
           {action.note ? <p className="vehicle-detail__current-note">{action.note}</p> : null}
         </div>
       )}

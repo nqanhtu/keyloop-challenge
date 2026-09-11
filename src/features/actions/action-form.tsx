@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Button } from '../../app/ui';
 import { clientErrorMessage } from '../errors/business-errors';
 import { useActionStatuses } from '../inventory/queries';
 import { useCreateVehicleAction } from './queries';
@@ -70,9 +71,21 @@ export function CreateActionForm({ vehicleId }: CreateActionFormProps) {
         />
       </div>
 
-      <button type="submit" className="button button--primary" disabled={!statusId || isSubmitting}>
-        Record action
-      </button>
+      <div className="create-action-form__actions">
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={!statusId || isSubmitting}
+          aria-busy={isSubmitting}
+        >
+          Record action
+        </Button>
+        {isSubmitting ? (
+          <p className="create-action-form__pending" role="status">
+            Recording action…
+          </p>
+        ) : null}
+      </div>
 
       {mutation.isError && (
         <p id={errorId} className="create-action-form__error" role="alert">

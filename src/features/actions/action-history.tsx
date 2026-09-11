@@ -1,4 +1,6 @@
 import type { VehicleAction } from '../../api/types';
+import { ActionHistorySkeleton } from '../inventory/components/loading-skeleton';
+import { RegionalError } from '../inventory/components/regional-error';
 
 /**
  * Actions are stored as UTC instants; the display keeps the UTC instant
@@ -11,18 +13,42 @@ export function formatActionTimestamp(createdAt: string): string {
 
 export interface ActionHistoryProps {
   actions: VehicleAction[];
+  /** True while the history request is still in flight (UI §16 local skeleton). */
+  isPending?: boolean;
+  /** True when the history request failed (UI §16 local error + retry). */
+  isError?: boolean;
+  errorMessage?: string;
+  onRetry?: () => void;
 }
 
 /**
  * System Design 6.6: the detail surface shows the complete immutable history
  * newest-first with status, actor, timestamp, and note. The server already
  * orders the history, so the list renders the returned order as-is.
+ *
+ * UI System Design §16: history owns its own loading/empty/error presentation so
+ * a history failure never blanks the vehicle, current-action, or form regions.
  */
-export function ActionHistory({ actions }: ActionHistoryProps) {
+export function ActionHistory({
+  actions,
+  isPending = false,
+  isError = false,
+  errorMessage,
+  onRetry,
+}: ActionHistoryProps) {
   return (
     <section className="vehicle-detail__section" aria-label="Action history">
       <h3>Action history</h3>
-      {actions.length === 0 ? (
+
+      {isPending ? (
+        <ActionHistorySkeleton />
+      ) : isError ? (
+        <RegionalError
+          region="action history"
+          message={errorMessage ?? 'Unable to load action history.'}
+          onRetry={onRetry ?? (() => {})}
+        />
+      ) : actions.length === 0 ? (
         <p className="action-history__empty">No actions recorded yet.</p>
       ) : (
         <ol className="action-history">

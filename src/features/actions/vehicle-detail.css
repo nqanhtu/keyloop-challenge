@@ -1,166 +1,292 @@
-.vehicle-detail {
-  position: fixed;
-  z-index: 30;
-  /* The variants below size the surface as a panel (drawer/sheet) or as the
-   * viewport (fullscreen). Without border-box the padding is added on top of
-   * that width, so the fullscreen detail overflowed the mobile viewport and the
-   * tablet sheet lost its side gutters. */
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  overflow-y: auto;
-  background: #ffffff;
-}
+/*
+ * U03 — Vehicle detail master-detail surface (UI System Design §7.2, §14, §15,
+ * §16, §17). All values resolve semantic tokens from tokens.css. The three
+ * variant rule bodies below keep the literal geometry asserted by
+ * vehicle-detail.test.tsx.
+ */
+@layer components {
+  /* Backdrop/scrim so the surface reads as layered above the page. */
+  .vehicle-detail-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--ui-z-scrim);
+    background-color: var(--ui-scrim);
+  }
 
-/* System Design 6.5: desktop -> right-side drawer. */
-.vehicle-detail--drawer {
-  inset: 0 0 0 auto;
-  width: min(34rem, 100vw);
-  padding: 1.5rem;
-  border-left: 1px solid #d7dce5;
-  box-shadow: -12px 0 32px rgb(15 23 42 / 25%);
-}
+  .vehicle-detail {
+    position: fixed;
+    z-index: var(--ui-z-detail);
+    /* The variants below size the surface as a panel (drawer/sheet) or as the
+     * viewport (fullscreen). Without border-box the padding is added on top of
+     * that width, so the fullscreen detail overflowed the mobile viewport and
+     * the tablet sheet lost its side gutters. */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-24);
+    overflow-y: auto;
+    background-color: var(--ui-surface);
+    color: var(--ui-text-primary);
+  }
 
-/* System Design 6.5: tablet -> adaptive wide sheet. */
-.vehicle-detail--sheet {
-  inset: 5vh 50% 5vh auto;
-  width: min(48rem, 92vw);
-  transform: translateX(50%);
-  padding: 1.5rem;
-  border: 1px solid #d7dce5;
-  border-radius: 1rem;
-  box-shadow: 0 12px 48px rgb(15 23 42 / 25%);
-}
+  /* System Design 6.5: desktop -> right-side drawer. */
+  .vehicle-detail--drawer {
+    inset: 0 0 0 auto;
+    width: min(34rem, 100vw);
+    padding: var(--ui-space-24);
+    border-left: 1px solid var(--ui-border);
+    box-shadow: var(--ui-shadow-overlay);
+  }
 
-/* System Design 6.5: mobile -> full-screen detail. */
-.vehicle-detail--fullscreen {
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 1rem;
-}
+  /* System Design 6.5: tablet -> adaptive wide sheet. */
+  .vehicle-detail--sheet {
+    inset: 5vh 50% 5vh auto;
+    width: min(48rem, 92vw);
+    transform: translateX(50%);
+    padding: var(--ui-space-24);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-10);
+    box-shadow: var(--ui-shadow-overlay);
+  }
 
-.vehicle-detail__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
+  /* System Design 6.5: mobile -> full-screen detail. */
+  .vehicle-detail--fullscreen {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: var(--ui-space-16);
+  }
 
-.vehicle-detail__header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-}
+  .vehicle-detail__header {
+    position: sticky;
+    top: 0;
+    z-index: var(--ui-z-sticky);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ui-space-16);
+    padding-bottom: var(--ui-space-12);
+    border-bottom: 1px solid var(--ui-border);
+    background-color: var(--ui-surface);
+  }
 
-.vehicle-detail__section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
-}
+  .vehicle-detail__header h2 {
+    margin: 0;
+    font-size: var(--ui-text-20);
+    font-weight: var(--ui-weight-semibold);
+  }
 
-.vehicle-detail__section h3 {
-  margin: 0;
-  font-size: 0.8125rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: #384152;
-}
+  .vehicle-detail__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-12);
+    padding-top: var(--ui-space-16);
+    border-top: 1px solid var(--ui-border-subtle);
+  }
 
-.vehicle-detail__facts,
-.action-history__facts {
-  display: grid;
-  gap: 0.375rem;
-  margin: 0;
-}
+  .vehicle-detail__section h3 {
+    margin: 0;
+    color: var(--ui-text-muted);
+    font-size: var(--ui-text-12);
+    font-weight: var(--ui-weight-semibold);
+    letter-spacing: var(--ui-tracking-label);
+    text-transform: uppercase;
+  }
 
-.vehicle-detail__fact,
-.action-history__fact {
-  display: flex;
-  gap: 0.75rem;
-}
+  /* --- Summary fact grid ------------------------------------------------ */
+  .vehicle-detail__facts,
+  .action-history__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--ui-space-12) var(--ui-space-16);
+    margin: 0;
+  }
 
-.vehicle-detail__fact dt,
-.action-history__fact dt {
-  min-width: 9rem;
-  font-weight: 600;
-  color: #4a5568;
-}
+  .vehicle-detail__fact,
+  .action-history__fact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-4);
+    min-width: 0;
+  }
 
-.vehicle-detail__fact dd,
-.action-history__fact dd {
-  margin: 0;
-}
-
-.vehicle-detail__current-status,
-.action-history__status {
-  margin: 0;
-  font-size: 1.0625rem;
-  font-weight: 700;
-}
-
-.vehicle-detail__current-note {
-  margin: 0.25rem 0 0;
-  color: #384152;
-}
-
-.vehicle-detail__loading,
-.action-history__empty {
-  margin: 0;
-  color: #4a5568;
-}
-
-.create-action-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: flex-start;
-}
-
-.create-action-form textarea {
-  min-height: 4.5rem;
-  min-width: 16rem;
-  padding: 0.5rem;
-  border: 1px solid #b8c1d1;
-  border-radius: 0.5rem;
-  font: inherit;
-}
-
-.create-action-form__error {
-  margin: 0;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d14343;
-  border-radius: 0.5rem;
-  background: #fdecec;
-  color: #7f1d1d;
-}
-
-.action-history {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.action-history__item {
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  background: #f8fafc;
-}
-
-@media (max-width: 767px) {
   .vehicle-detail__fact dt,
   .action-history__fact dt {
-    min-width: 7rem;
+    color: var(--ui-text-muted);
+    font-size: var(--ui-text-12);
+    font-weight: var(--ui-weight-semibold);
+    letter-spacing: var(--ui-tracking-label);
+    text-transform: uppercase;
+  }
+
+  .vehicle-detail__fact dd,
+  .action-history__fact dd {
+    margin: 0;
+    color: var(--ui-text-primary);
+  }
+
+  /* --- Current action --------------------------------------------------- */
+  .vehicle-detail__current {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-12);
+  }
+
+  .vehicle-detail__current-status,
+  .action-history__status {
+    margin: 0;
+    color: var(--ui-text-primary);
+    font-size: var(--ui-text-20);
+    font-weight: var(--ui-weight-bold);
+  }
+
+  .vehicle-detail__current-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--ui-space-8) var(--ui-space-16);
+    margin: 0;
+  }
+
+  .vehicle-detail__current-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-4);
+    min-width: 0;
+  }
+
+  .vehicle-detail__current-meta-item dt {
+    color: var(--ui-text-muted);
+    font-size: var(--ui-text-12);
+    font-weight: var(--ui-weight-semibold);
+    letter-spacing: var(--ui-tracking-label);
+    text-transform: uppercase;
+  }
+
+  .vehicle-detail__current-meta-item dd {
+    margin: 0;
+    color: var(--ui-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .vehicle-detail__current-note {
+    margin: 0;
+    color: var(--ui-text-secondary);
+  }
+
+  .vehicle-detail__current-empty,
+  .action-history__empty {
+    margin: 0;
+    color: var(--ui-text-secondary);
+  }
+
+  /* --- Create-action form ----------------------------------------------- */
+  .create-action-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-12);
+    align-items: stretch;
   }
 
   .create-action-form textarea {
-    min-width: 0;
-    width: 100%;
+    min-height: 5rem;
+    min-width: 16rem;
+    max-width: 100%;
+    padding: var(--ui-space-8) var(--ui-space-12);
+    border: 1px solid var(--ui-border-strong);
+    border-radius: var(--ui-radius-8);
+    background-color: var(--ui-surface);
+    color: var(--ui-text-primary);
+    font: inherit;
+    font-size: var(--ui-text-14);
+    resize: vertical;
+    transition: border-color var(--ui-motion-fast) var(--ui-ease);
+  }
+
+  .create-action-form textarea:hover:not(:disabled) {
+    border-color: var(--ui-text-muted);
+  }
+
+  .create-action-form textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .create-action-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ui-space-12);
+  }
+
+  .create-action-form__pending {
+    margin: 0;
+    color: var(--ui-text-secondary);
+    font-size: var(--ui-text-13);
+  }
+
+  .create-action-form__error {
+    margin: 0;
+    padding: var(--ui-space-8) var(--ui-space-12);
+    border: 1px solid var(--ui-error-border);
+    border-radius: var(--ui-radius-8);
+    background-color: var(--ui-error-bg);
+    color: var(--ui-error-text);
+    font-size: var(--ui-text-14);
+    font-weight: var(--ui-weight-semibold);
+  }
+
+  /* --- Action history timeline ------------------------------------------ */
+  .action-history {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .action-history__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-space-8);
+    padding: var(--ui-space-12) var(--ui-space-12) var(--ui-space-12) var(--ui-space-16);
+    border: 1px solid var(--ui-border);
+    border-left: 3px solid var(--ui-border-strong);
+    border-radius: var(--ui-radius-8);
+    background-color: var(--ui-surface-muted);
+  }
+
+  @media (max-width: 1023px) {
+    .ui-button {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+    }
+
+    .create-action-form textarea {
+      min-height: 5.5rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .vehicle-detail__facts,
+    .action-history__facts,
+    .vehicle-detail__current-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .create-action-form textarea {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .create-action-form__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .vehicle-detail__current-status,
+    .action-history__status {
+      font-size: var(--ui-text-16);
+    }
   }
 }
