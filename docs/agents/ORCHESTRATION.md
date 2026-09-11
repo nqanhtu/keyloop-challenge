@@ -101,15 +101,26 @@ Only this role may decide `RELEASE: PASS`. If that verdict must be persisted, Wo
 
 ## Canonical Durable Artifact Paths
 
-A fresh Codex Lead must not search the repository heuristically for workflow state. Use these paths:
+A fresh Codex Lead must not search the repository heuristically for workflow state. Use the current active plan named by repository authority rather than assuming a fixed filename.
+
+For the current UI redesign, use:
+
+```text
+docs/plans/active/ui-redesign.md
+```
+
+Use these durable paths:
 
 ```text
 docs/system-design/system-design-v1.md
   authoritative product/architecture design
 
-docs/plans/active/implementation.md
-  single active implementation plan
-  requirement registry + epic/story map + DAG + execution state + release status
+docs/ui-system-design/ui-system-design-v1.md
+  authoritative UI presentation/interaction/accessibility design
+
+docs/plans/active/<current-plan>.md
+  single active plan for the current cross-session workflow
+  requirement registry + DAG + execution state + release status
 
 docs/agents/tasks/<TASK-ID>.md
   bounded task contracts
@@ -292,12 +303,35 @@ A fresh Codex Lead resumes in this order:
 
 Do not infer completion from a dead session, stale pane, or missing agent. Repository/Git/evidence state decides what can be resumed or retried.
 
+## Child Pane Lifecycle
+
+Completed autonomous roles must not leave idle/dead child panes behind.
+
+Follow `docs/agents/PANE_LIFECYCLE.md` for the full safety contract.
+
+At minimum, after every Lead-created child role:
+
+1. capture its complete result/evidence;
+2. reconcile repository state;
+3. ensure it is not blocked and has no unresolved writer state;
+4. gracefully exit/release the agent using the installed Herdr CLI;
+5. close the child pane;
+6. verify the pane disappeared from workspace inventory.
+
+Never auto-close the user pane, Lead pane, blocked agent, unresolved writer, or a persistent server/browser pane still required by active work.
+
+At every dependency-wave boundary, reconcile live panes before spawning new ones.
+
+An orphan writer/process that may continue mutating repository state is a workflow-integrity blocker until reconciled.
+
 ## Cleanup
 
 After integration/release or explicit abandonment:
 
+- apply the child-pane lifecycle above;
 - stop only processes owned by the workflow run;
+- close auxiliary dev-server/test/browser panes created solely for the workflow when no longer needed;
 - remove disposable worktrees only after their commits are integrated or intentionally abandoned;
 - preserve evidence required for audit/recovery;
 - do not delete branches, artifacts, or state whose ownership is uncertain;
-- after release PASS, have Workflow Scribe move the single implementation plan from `docs/plans/active/` to `docs/plans/completed/` with the final release evidence reference.
+- after release PASS, have Workflow Scribe move the single active plan from `docs/plans/active/` to `docs/plans/completed/` with the final release evidence reference.
