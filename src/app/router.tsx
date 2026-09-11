@@ -3,8 +3,8 @@ import {
   createRoute,
   createRouter,
   createMemoryHistory,
-  Link,
   Outlet,
+  redirect,
   type RouterHistory,
 } from '@tanstack/react-router';
 import { InventoryDashboard } from '../features/inventory/inventory-dashboard';
@@ -18,26 +18,24 @@ function RootComponent() {
   );
 }
 
-function IndexComponent() {
-  return (
-    <main>
-      <h1>Keyloop Inventory Command Center</h1>
-      <p>Foundation ready.</p>
-      <p>
-        <Link to="/inventory">Open inventory dashboard</Link>
-      </p>
-    </main>
-  );
-}
-
 const rootRoute = createRootRoute({
   component: RootComponent,
 });
 
+/**
+ * Approved routing decision: opening the app root must show the inventory
+ * dashboard, and `/inventory` stays the single canonical dashboard URL. The
+ * index route therefore renders nothing and redirects instead. `search: true`
+ * carries the incoming query string through untouched so `/inventory` keeps
+ * sole ownership of search normalization (it is the only route declaring
+ * `validateSearch`).
+ */
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: IndexComponent,
+  beforeLoad: () => {
+    throw redirect({ to: '/inventory', search: true });
+  },
 });
 
 const inventoryRoute = createRoute({

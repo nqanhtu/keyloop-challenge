@@ -30,8 +30,10 @@ describe('Application Bootstrap & Server-State Ownership Seams', () => {
       await screen.findByRole('heading', { level: 1 }),
     ).toHaveTextContent(/inventory command center/i);
 
-    // Foundation placeholder is visible
-    expect(await screen.findByText(/foundation ready/i)).toBeInTheDocument();
+    // The index route redirects to the canonical dashboard, not a placeholder.
+    expect(
+      await screen.findByRole('region', { name: 'Inventory results' }),
+    ).toBeInTheDocument();
   });
 
   it('demonstrates server-state ownership through TanStack Query without secondary store', async () => {
