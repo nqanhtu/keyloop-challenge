@@ -152,8 +152,8 @@ All 49 requirements begin `PLANNED`; task state and evidence, not this registry 
 
 | Task | Outcome boundary | Dependencies | Risk | State |
 |---|---|---|---:|---|
-| T01 | Runnable React/TS + Router/Query + typed HTTP/MSW + test/build foundation | none | C | READY |
-| T02 | Authoritative mock inventory reads, aging, filters/sort/page/options/detail | T01 DONE | C | PLANNED |
+| T01 | Runnable React/TS + Router/Query + typed HTTP/MSW + test/build foundation | none | C | DONE |
+| T02 | Authoritative mock inventory reads, aging, filters/sort/page/options/detail | T01 DONE | C | READY |
 | T03 | Persistent append-only action/status service and summary completion | T02 DONE | C | PLANNED |
 | T04 | Responsive inventory dashboard and URL-owned discovery UX | T03 DONE | H | PLANNED |
 | T05 | Responsive detail/action form/history + optimistic mutation | T03 DONE | H | PLANNED |
@@ -187,7 +187,9 @@ Execution waves:
 - Wave 3: T07 and T08 may run in parallel because their verification surfaces are independent.
 - Wave 4: clean pinned release candidate, fresh Compliance, then workflow-only compliance record/archive.
 
-Current ready frontier: **T01 only**.
+Current ready frontier: **T02 only**.
+
+T01 integrated state: base `c166671e61df0d36617090f226a4ffaf79960c23`; implementation `2b15a1519ddfe5ed805a97341099e617b22eca93`; tooling repair `6ccd5a615643469c82e21ff2bd1faa69844f4b17`; integration commits `55fe9416ebf8d4b24bab338f53400d2446aa9081` and `46a90b93c085050126b04bc48769d7fc2aa1cd4a`; evidence `docs/agents/evidence/T01.md`.
 
 Do not pre-fill future task `base_commit` values. A dependent task captures its base only after dependencies are integrated and verified.
 
@@ -378,9 +380,9 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] 49-requirement registry normalized.
 - [x] T01–T08 DAG normalized; T01 identified as sole READY frontier.
 - [x] T01 dispatch specification prepared.
-- [ ] Lead captures post-bootstrap-plan T01 `base_commit`.
-- [ ] Scribe persists canonical `docs/agents/tasks/T01.md`.
-- [ ] T01 implementation/review/test/integration/evidence reaches DONE.
+- [x] Lead captures post-bootstrap-plan T01 `base_commit`.
+- [x] Scribe persists canonical `docs/agents/tasks/T01.md`.
+- [x] T01 implementation/review/test/integration/evidence reaches DONE.
 - [ ] T02 reaches DONE.
 - [ ] T03 reaches DONE.
 - [ ] T04 and T05 reach DONE.
