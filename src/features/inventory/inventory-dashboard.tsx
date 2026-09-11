@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { VehicleSortOption } from '../../api/types';
 import { Button, VisuallyHidden } from '../../app/ui';
 import { VehicleDetail } from '../actions/vehicle-detail';
@@ -110,6 +110,49 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
    * assistive technology. Each modal also traps Tab/Shift+Tab inside itself.
    */
   const modalOpen = isFilterSheetOpen || Boolean(search.vehicleId);
+
+  /**
+   * R-01 (U05 F1 residual; UI §17.8, §18, §13.4): `inert` removes focus and
+   * pointer access to the page behind a modal, but it does not stop the
+   * document from scrolling — at 1280x800 both wheel scrolling and a
+   * programmatic `window.scrollTo` moved the page underneath an open detail
+   * (scrollY 0 -> 410). While any modal surface is open, pin <body> at the
+   * current offset so the background cannot scroll, then restore the exact
+   * prior inline state and offset on close.
+   *
+   * Pinning beats `overflow: hidden` here: an overflow-hidden root is still a
+   * scroll container, so it blocks the wheel but JavaScript can still scroll
+   * it. The modal surfaces themselves are `position: fixed` with their own
+   * `overflow-y: auto`, so their internal scrolling is unaffected.
+   */
+  useEffect(() => {
+    if (!modalOpen) {
+      return;
+    }
+    const { body } = document;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+    };
+    const scrollY = window.scrollY;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+
+    return () => {
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.left = previous.left;
+      body.style.right = previous.right;
+      // Pinning collapsed the document scroll, so put the page back where it was.
+      if (scrollY !== 0) {
+        window.scrollTo(0, scrollY);
+      }
+    };
+  }, [modalOpen]);
 
   return (
     /* RP-7 (U05 F4): the /inventory route renders a single main landmark. */

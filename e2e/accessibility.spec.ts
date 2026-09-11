@@ -232,3 +232,77 @@ test('modal surfaces contain focus and make the background subtree inert', async
   expect(await isInert()).toBe(false);
   await expect(page.getByRole('button', { name: 'Filters', exact: true })).toBeFocused();
 });
+
+/**
+ * U06b R-01 (U05 F1 residual; UI §17.8, §13.4): `inert` alone does not stop the
+ * page behind a modal from scrolling, so the dashboard locks the document scroll
+ * while any modal surface is open. This is additive: it asserts the scroll
+ * behaviour only and leaves the focus/inert assertions above unchanged.
+ */
+test('an open modal locks background scroll, and inner + post-close scroll still work', async ({
+  page,
+}) => {
+  const tier = await openDashboard(page);
+  const viewport = page.viewportSize();
+  if (!viewport) {
+    throw new Error('The browser proof requires a fixed viewport per project.');
+  }
+  const readPageScroll = () => page.evaluate(() => Math.round(window.scrollY));
+
+  await gotoInventory(page, `?vehicleId=${AGING_VEHICLE.vehicleId}`);
+  const detail = vehicleDetail(page);
+  await expect(detail).toBeVisible({ timeout: APP_READY_TIMEOUT_MS });
+
+  // Programmatic scroll must not move the page underneath the open detail.
+  const openedAt = await readPageScroll();
+  await page.evaluate(() => window.scrollTo(0, 480));
+  expect(await readPageScroll()).toBe(openedAt);
+
+  // The dimmed background must not scroll under the wheel either. On mobile the
+  // detail is full-screen, so there is no background exposed to the wheel.
+  if (tier !== 'mobile') {
+    await page.mouse.move(20, Math.round(viewport.height * 0.85));
+    await page.mouse.wheel(0, 600);
+    // Give wheel scrolling a frame before asserting the page held still.
+    await page.waitForTimeout(200);
+    expect(await readPageScroll()).toBe(openedAt);
+  }
+
+  // The modal surface still owns its own content scrolling when it overflows.
+  const detailOverflows = await detail.evaluate((el) => el.scrollHeight > el.clientHeight + 4);
+  if (detailOverflows) {
+    const box = await detail.boundingBox();
+    if (box) {
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height - 20);
+      await page.mouse.wheel(0, 700);
+    }
+    // Wheel scrolling is applied on the next frame, so poll for the result.
+    await expect
+      .poll(() => detail.evaluate((el) => Math.round(el.scrollTop)))
+      .toBeGreaterThan(0);
+  }
+
+  // Closing the detail releases the lock: the page scrolls again.
+  await page.keyboard.press('Escape');
+  await expect(detail).toBeHidden();
+  const range = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight,
+  );
+  if (range > 0) {
+    await page.evaluate(() => window.scrollTo(0, Math.min(200, window.innerHeight)));
+    expect(await readPageScroll()).toBeGreaterThan(0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+  }
+
+  if (tier === 'desktop') {
+    return;
+  }
+
+  // Filter sheet: the same lock while it is open, released on close.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  const sheet = await openFilterSheet(page);
+  await page.evaluate(() => window.scrollTo(0, 480));
+  expect(await readPageScroll()).toBe(0);
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+});
