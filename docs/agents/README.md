@@ -20,11 +20,11 @@ Repository state and executable evidence outrank agent claims or session memory.
 
 - **Herdr** — orchestration and lifecycle only: workspaces, worktrees, panes, agents, waiting, prompting, and process execution.
 - **Codex Lead** — read-only architecture audit, requirement decomposition, dependency DAG, task contracts, routing, and acceptance ownership.
-- **Antigravity Workflow Scribe** — writes exact Codex-approved durable workflow artifacts because Codex remains repository-mutation read-only.
-- **Antigravity Builder** — implementation and repair. Builders are the normal source/test writers.
+- **DeepSeek Workflow Scribe** — writes exact Codex-approved durable workflow artifacts because Codex remains repository-mutation read-only.
+- **DeepSeek Builder** — implementation and repair. Builders are the normal source/test writers.
 - **Codex Reviewer** — fresh read-only review against the task contract and relevant design requirements.
 - **Codex Tester** — verification owner; runs or orchestrates repository test commands without repairing source code.
-- **Antigravity Integrator** — integrates reviewed work and resolves implementation-level merge/integration issues.
+- **DeepSeek Integrator** — integrates reviewed work and resolves implementation-level merge/integration issues.
 - **Codex Compliance** — fresh final audit of the complete product against the System Design. It is the only agent role allowed to decide release PASS.
 
 See [ORCHESTRATION.md](ORCHESTRATION.md).
@@ -36,17 +36,17 @@ Read [RUNTIME.md](RUNTIME.md) before starting autonomous agents.
 Normal runtime policy is intentionally economical because the repository Harness, Task Contracts, reviews, tests, and evidence carry much of the reliability:
 
 ```text
-Codex Lead            gpt-5.6-sol / medium
-Codex Reviewer        gpt-5.6-sol / medium
-Codex Tester          gpt-5.6-terra / medium
-Codex diagnosis       gpt-5.6-sol / high when escalated
-Codex Compliance      gpt-5.6-sol / high
-AGY Workflow Scribe   gemini-3.8-flash-medium
-AGY Builder/Repair    gemini-3.8-flash-high
-AGY Integrator        gemini-3.8-flash-high
+DeepSeek Lead         deepseek-flash / high
+DeepSeek Reviewer     deepseek-flash / high
+DeepSeek Tester       deepseek-flash / high
+DeepSeek diagnosis    deepseek-flash / high
+DeepSeek Compliance   deepseek-flash / high
+DeepSeek Scribe       deepseek-flash / high
+DeepSeek Builder      deepseek-flash / high
+DeepSeek Integrator   deepseek-flash / high
 ```
 
-Codex internal multi-agent mode stays disabled; Herdr is the orchestration layer. The current macOS environment requires Codex runtime `danger-full-access` for Herdr Unix-socket IPC, while the repository role remains logically read-only and all repository writes stay delegated to Antigravity.
+Codex internal multi-agent mode stays disabled; Herdr is the orchestration layer. The current macOS environment requires runtime `danger-full-access` for Herdr Unix-socket IPC. Lead/Reviewer/Tester/Compliance stay logically read-only; only scoped DeepSeek Builder/Repairer/Integrator/Scribe sessions may write.
 
 ## Progressive Disclosure
 
@@ -86,9 +86,9 @@ Old incidents and candidate lessons are not normal worker context.
 
 ## Durable State
 
-Durable workflow state belongs in the repository, not in a Codex or Antigravity conversation.
+Durable workflow state belongs in the repository, not in a DeepSeek role session.
 
-Codex decides durable state but does not write it. A dedicated Antigravity Workflow Scribe persists exact Codex-approved content.
+Codex decides durable state but does not write it. A dedicated DeepSeek Workflow Scribe persists exact Codex-approved content.
 
 Canonical paths:
 
@@ -151,7 +151,7 @@ Project authority overrides generic skill assumptions when they conflict.
 
 - **TDD:** Task Contract `test_seams` are the pre-agreed seams; no human reconfirmation is needed unless authority is genuinely missing.
 - **Code review:** Task Contract `base_commit` is the fixed point; Task Contract + `design_refs` are the spec. See [issue-tracker.md](issue-tracker.md); GitHub Issues are optional and are not workflow state.
-- **Harness learning:** project learning may evolve project-owned `docs/agents/**` rules/templates/evidence and project-native checks through an Antigravity writer. Harness core itself is not self-modified; `$improve-harness` still requires explicit user authorization.
+- **Harness learning:** project learning may evolve project-owned `docs/agents/**` rules/templates/evidence and project-native checks through an authorized DeepSeek writer role. Harness core itself is not self-modified; `$improve-harness` still requires explicit user authorization.
 
 ## Entry Skill
 
@@ -164,7 +164,7 @@ That skill is the control loop. The generic Herdr skill only supplies Herdr mech
 - [ORCHESTRATION.md](ORCHESTRATION.md) — execution lifecycle, role separation, recovery, retries, and integration.
 - [RUNTIME.md](RUNTIME.md) — pinned model/effort/runtime permissions and escalation policy.
 - [BRANCHING.md](BRANCHING.md) — task base commits, worktree creation, review fixed points, and commit provenance.
-- [TASK_CONTRACT_TEMPLATE.md](TASK_CONTRACT_TEMPLATE.md) — bounded handoff contract from Codex Lead to Antigravity.
+- [TASK_CONTRACT_TEMPLATE.md](TASK_CONTRACT_TEMPLATE.md) — bounded handoff contract from DeepSeek Lead to a bounded DeepSeek writer role.
 - [QUALITY_AND_LEARNING.md](QUALITY_AND_LEARNING.md) — readiness/done gates, review/testing/compliance, incidents, and workflow learning.
 - [issue-tracker.md](issue-tracker.md) — adapter for generic review skills without adding an issue-based control plane.
 - [../decisions/README.md](../decisions/README.md) — accepted implementation/product decisions that supplement the System Design.
