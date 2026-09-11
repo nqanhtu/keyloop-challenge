@@ -1,6 +1,11 @@
 .vehicle-detail {
   position: fixed;
   z-index: 30;
+  /* The variants below size the surface as a panel (drawer/sheet) or as the
+   * viewport (fullscreen). Without border-box the padding is added on top of
+   * that width, so the fullscreen detail overflowed the mobile viewport and the
+   * tablet sheet lost its side gutters. */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;

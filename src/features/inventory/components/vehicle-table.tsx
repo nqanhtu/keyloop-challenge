@@ -17,17 +17,20 @@ function stockedDate(value: string): string {
 
 /**
  * System Design 6.5: selecting a vehicle opens the detail surface. The control
- * carries the VIN so its accessible name is unique across the inventory.
+ * carries the VIN so its accessible name is unique across the inventory, and
+ * the vehicle id so focus can be restored to it after a non-click open path
+ * (System Design 6.10).
  */
 function selectVehicleControl(
   vehicle: VehicleView,
-  onSelectVehicle: (vehicleId: string) => void,
+  onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void,
 ) {
   return (
     <button
       type="button"
       className="button vehicle-table__select"
-      onClick={() => onSelectVehicle(vehicle.vehicleId)}
+      onClick={(event) => onSelectVehicle(vehicle.vehicleId, event.currentTarget)}
+      data-vehicle-detail-trigger={vehicle.vehicleId}
       aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
     >
       Details
@@ -35,7 +38,10 @@ function selectVehicleControl(
   );
 }
 
-function currentActionCell(vehicle: VehicleView, onSelectVehicle: (vehicleId: string) => void) {
+function currentActionCell(
+  vehicle: VehicleView,
+  onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void,
+) {
   return (
     <>
       <span className="vehicle-table__current-action">{currentActionLabel(vehicle)}</span>
@@ -44,7 +50,7 @@ function currentActionCell(vehicle: VehicleView, onSelectVehicle: (vehicleId: st
   );
 }
 
-function buildFullColumns(onSelectVehicle: (vehicleId: string) => void) {
+function buildFullColumns(onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void) {
   return columnHelper.columns([
     columnHelper.accessor('make', { header: 'Make' }),
     columnHelper.accessor('model', { header: 'Model' }),
@@ -71,7 +77,9 @@ function buildFullColumns(onSelectVehicle: (vehicleId: string) => void) {
  * Tablet condensation (System Design 6.3): identification, age, aging status,
  * and current action stay; lower-priority fields are dropped.
  */
-function buildCompactColumns(onSelectVehicle: (vehicleId: string) => void) {
+function buildCompactColumns(
+  onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void,
+) {
   return columnHelper.columns([
     columnHelper.accessor('make', { header: 'Make' }),
     columnHelper.accessor('model', { header: 'Model' }),
@@ -94,7 +102,7 @@ export interface VehicleTableProps {
   page: number;
   pageSize: number;
   density: 'full' | 'compact';
-  onSelectVehicle: (vehicleId: string) => void;
+  onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void;
 }
 
 /**

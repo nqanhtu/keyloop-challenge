@@ -45,6 +45,18 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   const tier = useViewportTier();
   const { now } = useAppEnvironment();
   const [isFilterSheetOpen, setFilterSheetOpen] = useState(false);
+  /**
+   * System Design 6.10: remember which control opened the detail so focus can
+   * return to it. The list re-renders while the detail is open, so the stable
+   * accessible name is captured in the click handler rather than the DOM node
+   * (never read from a ref during render). It is keyed by vehicle so a non-click
+   * open path (direct URL, reload, browser back/forward) cannot restore focus to
+   * a different vehicle's trigger.
+   */
+  const [detailOpener, setDetailOpener] = useState<{
+    vehicleId: string;
+    label: string | null;
+  } | null>(null);
 
   const summaryQuery = useInventorySummary();
   const listQuery = useVehicleList(search);
@@ -69,7 +81,10 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   });
 
   /** System Design 6.5: selection is URL state, so discovery values survive. */
-  const selectVehicle = (vehicleId: string) => onApplySearch(openVehicleDetail(search, vehicleId));
+  const selectVehicle = (vehicleId: string, trigger: HTMLElement | null) => {
+    setDetailOpener({ vehicleId, label: trigger?.getAttribute('aria-label') ?? null });
+    onApplySearch(openVehicleDetail(search, vehicleId));
+  };
 
   const filterControlsProps = {
     idPrefix: 'inventory-filter',
@@ -86,7 +101,11 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   return (
     <div className="inventory-dashboard">
       <header className="inventory-dashboard__header">
-        <h1>Keyloop Inventory Command Center</h1>
+        {/* System Design 6.10: focus fallback when the detail was opened without
+         * a click, so closing it never drops focus on <body>. */}
+        <h1 tabIndex={-1} data-focus-fallback="page-heading">
+          Keyloop Inventory Command Center
+        </h1>
         <p className="inventory-dashboard__subtitle">
           Discover aging inventory and the actions already taken on it.
         </p>
@@ -172,6 +191,8 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         className="inventory-results"
         aria-label="Inventory results"
         aria-busy={listQuery.isFetching}
+        tabIndex={-1}
+        data-focus-fallback="inventory-results"
       >
         {listQuery.isPending && <InventoryListSkeleton />}
 
@@ -225,6 +246,9 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         <VehicleDetail
           vehicleId={search.vehicleId}
           tier={tier}
+          focusReturnLabel={
+            detailOpener?.vehicleId === search.vehicleId ? detailOpener.label : null
+          }
           onClose={() => onApplySearch(closeVehicleDetail(search))}
         />
       )}

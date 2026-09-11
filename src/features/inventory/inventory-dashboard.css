@@ -192,8 +192,10 @@
 }
 
 .toolbar-field--toggle input {
-  width: 1.25rem;
-  height: 1.25rem;
+  /* System Design 6.10: interactive targets meet the documented 24x24 CSS px
+   * minimum (WCAG 2.2 SC 2.5.8). */
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .toolbar-field--toggle label {

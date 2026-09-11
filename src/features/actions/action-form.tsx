@@ -18,6 +18,7 @@ export function CreateActionForm({ vehicleId }: CreateActionFormProps) {
   const mutation = useCreateVehicleAction(vehicleId);
   const [statusIdDraft, setStatusIdDraft] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
+  const errorId = 'create-action-error';
 
   const activeStatuses = (statusesQuery.data ?? []).filter((status) => status.isActive);
   const statusId = statusIdDraft || activeStatuses[0]?.id || '';
@@ -37,7 +38,13 @@ export function CreateActionForm({ vehicleId }: CreateActionFormProps) {
   };
 
   return (
-    <form className="create-action-form" onSubmit={handleSubmit}>
+    <form
+      className="create-action-form"
+      onSubmit={handleSubmit}
+      /* System Design 6.10: a rejected submit is announced and programmatically
+       * associated with the form as its described validation message. */
+      aria-describedby={mutation.isError ? errorId : undefined}
+    >
       <div className="filter-field">
         <label htmlFor="create-action-status">Action status</label>
         <select
@@ -68,7 +75,7 @@ export function CreateActionForm({ vehicleId }: CreateActionFormProps) {
       </button>
 
       {mutation.isError && (
-        <p className="create-action-form__error" role="alert">
+        <p id={errorId} className="create-action-form__error" role="alert">
           {clientErrorMessage(mutation.error)}
         </p>
       )}

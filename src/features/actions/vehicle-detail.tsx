@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { VehicleActionSummary, VehicleView } from '../../api/types';
 import { clientErrorMessage } from '../errors/business-errors';
 import { AgingIndicator } from '../inventory/components/aging-indicator';
@@ -21,17 +21,98 @@ export interface VehicleDetailProps {
   vehicleId: string;
   tier: ViewportTier;
   onClose: () => void;
+  /**
+   * Accessible name of the control that opened the detail, captured when the
+   * user activates it. The inventory list re-renders while the detail is open
+   * (the selected vehicle is URL state), which replaces the trigger element, so
+   * focus is returned by name. It is `null` when the detail was opened without
+   * a click (direct URL, reload, browser back/forward).
+   */
+  focusReturnLabel?: string | null;
+}
+
+function escapeAttributeValue(value: string): string {
+  return value.replace(/["\\]/g, '\\$&');
+}
+
+/**
+ * System Design 6.10: closing the detail always hands focus to a sensible
+ * element instead of dropping it on `<body>`. The opener is preferred by its
+ * accessible name (the list replaces the trigger element on re-render), then
+ * the selected vehicle's trigger, then the inventory results region, then the
+ * page heading. The fallbacks cover the non-click open paths where no opener
+ * was captured.
+ */
+function restoreFocus(label: string | null | undefined, vehicleId: string): void {
+  const candidates: Array<HTMLElement | null> = [];
+  if (label) {
+    candidates.push(
+      document.querySelector<HTMLElement>(`[aria-label="${escapeAttributeValue(label)}"]`),
+    );
+  }
+  candidates.push(
+    document.querySelector<HTMLElement>(
+      `[data-vehicle-detail-trigger="${CSS.escape(vehicleId)}"]`,
+    ),
+    document.querySelector<HTMLElement>('[data-focus-fallback="inventory-results"]'),
+    document.querySelector<HTMLElement>('[data-focus-fallback="page-heading"]'),
+  );
+
+  for (const candidate of candidates) {
+    if (candidate) {
+      candidate.focus();
+      return;
+    }
+  }
 }
 
 /**
  * System Design 6.5: vehicle summary, current action, create-action form, and
  * full action history in that order.
  */
-export function VehicleDetail({ vehicleId, tier, onClose }: VehicleDetailProps) {
+export function VehicleDetail({
+  vehicleId,
+  tier,
+  onClose,
+  focusReturnLabel,
+}: VehicleDetailProps) {
   const detailQuery = useVehicleDetail(vehicleId);
   const historyQuery = useVehicleActions(vehicleId);
   const variant = DETAIL_VARIANT_BY_TIER[tier];
   const vehicle = detailQuery.data;
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  /**
+   * Focus-out must run exactly once, when the detail unmounts, while still
+   * seeing the opener that was current at close time. Mirroring the latest
+   * committed props into a ref from an effect (never read during render) keeps
+   * the unmount cleanup stable and the render pure.
+   */
+  const focusReturnRef = useRef<{ label: string | null; vehicleId: string }>({
+    label: null,
+    vehicleId,
+  });
+
+  /**
+   * System Design 6.10: the detail is a keyboard-operable modal surface. Focus
+   * moves into the detail on open and returns to a sensible element on close,
+   * so a keyboard user is never stranded behind or after the dialog.
+   */
+  useEffect(() => {
+    focusReturnRef.current = { label: focusReturnLabel ?? null, vehicleId };
+  }, [focusReturnLabel, vehicleId]);
+
+  // Focus in: the detail's first control receives focus when it opens.
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
+  // Focus out: closing the detail always hands focus to a sensible element.
+  useEffect(() => {
+    return () => {
+      const { label, vehicleId: closedVehicleId } = focusReturnRef.current;
+      restoreFocus(label, closedVehicleId);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -55,6 +136,7 @@ export function VehicleDetail({ vehicleId, tier, onClose }: VehicleDetailProps) 
       <header className="vehicle-detail__header">
         <h2>Vehicle detail</h2>
         <button
+          ref={closeButtonRef}
           type="button"
           className="button"
           onClick={onClose}

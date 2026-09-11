@@ -3,7 +3,7 @@ import { AgingIndicator } from './aging-indicator';
 
 export interface VehicleCardsProps {
   vehicles: VehicleView[];
-  onSelectVehicle: (vehicleId: string) => void;
+  onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void;
 }
 
 /**
@@ -40,7 +40,8 @@ export function VehicleCards({ vehicles, onSelectVehicle }: VehicleCardsProps) {
           <button
             type="button"
             className="button vehicle-card__select"
-            onClick={() => onSelectVehicle(vehicle.vehicleId)}
+            onClick={(event) => onSelectVehicle(vehicle.vehicleId, event.currentTarget)}
+            data-vehicle-detail-trigger={vehicle.vehicleId}
             aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
           >
             Details
