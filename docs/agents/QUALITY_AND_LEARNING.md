@@ -90,6 +90,44 @@ open dashboard
 
 Run representative desktop, tablet, and mobile viewports.
 
+### Gate F — UI Visual and Responsive Proof
+
+Applicable to UI redesign/release work.
+
+A fresh read-only visual/browser review must verify the approved UI System Design in a real browser at the reference desktop, tablet, and mobile viewports.
+
+At minimum verify:
+
+- information hierarchy and scanability;
+- spacing/alignment/density consistency;
+- semantic status treatment;
+- filter usability;
+- inventory table/card priority;
+- drawer/sheet/fullscreen geometry;
+- loading/empty/error/stale polish;
+- hover/focus/pressed states;
+- absence of unintended horizontal overflow.
+
+Exploratory browser evidence complements but does not replace Playwright.
+
+### Gate G — Accessibility Proof
+
+Applicable to UI redesign/release work.
+
+A fresh accessibility audit must verify the UI System Design accessibility contract, including:
+
+- keyboard-only primary journey;
+- visible focus;
+- focus entry/return for detail and modal/sheet surfaces;
+- accessible names and validation association;
+- table/card semantics;
+- non-color-only status communication;
+- WCAG AA-oriented contrast;
+- touch target sizing;
+- reduced-motion behavior.
+
+No unresolved critical/high accessibility finding may remain for UI REDESIGN: PASS.
+
 ### Gate E — Architecture Compliance Proof
 
 Where practical, use mechanical checks/tests to prove boundaries such as:
@@ -130,6 +168,8 @@ fresh checkout/worktree
 -> unit tests
 -> integration tests
 -> E2E desktop/tablet/mobile
+-> UI visual/responsive browser proof when UI scope changed
+-> accessibility proof when UI scope changed
 -> architecture checks
 -> final Codex compliance audit
 ```
@@ -161,7 +201,9 @@ Workflow Scribe may persist that verdict to `docs/agents/evidence/release-compli
 
 Verification depth should match change risk.
 
-- **Low:** copy/layout/local styling with no contract change -> targeted review/check.
+- **Low:** copy/local styling with no contract change -> targeted review/check.
+- **Medium UI:** layout/responsive/visual-system change -> fresh browser visual review + targeted responsive proof.
+- **High UI:** focus/modal/form/status/accessibility interaction change -> fresh browser review + independent accessibility audit + E2E proof.
 - **Medium:** URL/query/state behavior -> review + targeted integration proof.
 - **High:** HTTP boundary, persistence, optimistic mutation, business errors -> fresh review + integration/E2E proof.
 - **Critical:** architecture/data ownership/business invariant -> independent review + mechanical proof where possible + final compliance coverage.
