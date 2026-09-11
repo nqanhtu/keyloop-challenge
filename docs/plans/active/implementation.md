@@ -395,22 +395,29 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] T04 and T05 reach DONE.
 - [x] T06 reaches DONE.
 - [x] T07 and T08 reach DONE.
-- [ ] Clean release-candidate verification passes.
+- [x] Clean release-candidate verification passes.
 - [ ] Fresh DeepSeek Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
 - [ ] Workflow-only compliance record is persisted and its post-pass diff verified.
 - [ ] This plan is moved to `docs/plans/completed/` with release evidence reference.
+
+## Release Candidate
+
+- release_candidate_commit: `2d3f0d501c7df534d713d0bfe96e8e48a7f99ff0`
+- Verified from a fresh linked worktree at that exact commit (`.worktrees/release-candidate`, branch `rc/release-candidate`), with no builder state, dev server, cache, or browser storage reused.
+- Clean sequence results: `npm ci` PASS (0 vulnerabilities); `npm run typecheck` PASS; `npm run lint` PASS; `npm run test` PASS (21 files / 239 tests); `npm run build` PASS; `npm run test:e2e` PASS (18 tests across desktop, tablet, and mobile); architecture suites PASS (2 files / 85 tests).
+- The working tree of the release-candidate checkout was clean before and after verification.
 
 ## Release Gate State
 
 | Gate | State | Required terminal evidence |
 |---|---|---|
-| Task acceptance | PENDING | scoped commits + accepted capsules + fresh review + required targeted tests |
-| A — Static repository proof | PENDING | clean install + typecheck + lint + build |
-| B — Business-rule unit proof | PENDING | 89/90/91 + timezone boundary + inactive status/eligibility proof |
-| C — Frontend integration | PENDING | required RTL + MSW behaviors |
-| D — Browser E2E | PENDING | primary flow + reload persistence on desktop/tablet/mobile |
-| E — Architecture compliance | PENDING | accepted-boundary positive/negative/mechanical evidence |
-| Clean candidate | PENDING | fresh checkout at pinned SHA; all applicable gates pass |
+| Task acceptance | PASS | T01-T08 scoped commits + accepted evidence capsules (docs/agents/evidence/T01-T08.md) + fresh independent review/test each |
+| A — Static repository proof | PASS | clean RC checkout: npm ci (0 vulnerabilities) + typecheck + lint + build |
+| B — Business-rule unit proof | PASS | 89/90/91 + non-UTC dealership-calendar boundary + eligibility/inactive-status proof (T02/T03 tests) |
+| C — Frontend integration | PASS | required RTL + MSW behaviors (T04/T05/T06 tests; 239 total tests) |
+| D — Browser E2E | PASS | primary flow + reload persistence at desktop/tablet/mobile (18 e2e tests across 3 projects, repeated green) |
+| E — Architecture compliance | PASS | accepted-boundary mechanical proof over src/app, src/api, src/features + design-only scope proof (85 architecture tests) |
+| Clean candidate | PASS | fresh checkout at pinned release_candidate_commit 2d3f0d501c7df534d713d0bfe96e8e48a7f99ff0; all applicable gates pass |
 | Final Compliance | PENDING | fresh DeepSeek Compliance matrix has no FAIL/UNVERIFIED |
 | Post-pass provenance | PENDING | workflow-record-only diff after audited release candidate |
 
@@ -427,6 +434,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - 2026-09-11: Accept T06 with two low findings and one info observation (test-helper duplication; default no-op instrumentation path vs injectable sink; results region gated on isSuccess). None is a boundary or acceptance violation; all recorded in docs/agents/evidence/T06.md.
 - 2026-09-11: Accept T08 after a test-only repair: the initial Spec review found five under-approximation gaps in the mechanical proof; all five were closed with negative fixtures and independently re-verified. Latent false-positive risks of the widened heuristics are recorded in docs/agents/evidence/T08.md.
 - 2026-09-11: Accept T07 after two bounded repairs (a11y focus/modality fix and a test-only app-readiness fix) with independent re-verification; the browser proof is green across 7 full runs including induced load and the delayed-mount probe proves the readiness wait is load-bearing.
+- 2026-09-11: Pin release_candidate_commit 2d3f0d501c7df534d713d0bfe96e8e48a7f99ff0 and treat the clean-worktree gate results above as the release evidence for fresh final Compliance. The audited product commit d4ad90cb1dbb1a977ac596f88cdb66cf5297787b carries identical product content; later commits are workflow records only.
 
 Lasting mock product/behavior decisions remain in `docs/decisions/0001-mock-implementation-baseline.md`, not duplicated as new product authority here.
 
