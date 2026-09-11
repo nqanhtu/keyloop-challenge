@@ -158,7 +158,7 @@ All 49 requirements begin `PLANNED`; task state and evidence, not this registry 
 | T04 | Responsive inventory dashboard and URL-owned discovery UX | T03 DONE | H | DONE |
 | T05 | Responsive detail/action form/history + optimistic mutation | T03 DONE | H | DONE |
 | T06 | Cross-feature consistency, errors, freshness, loading, instrumentation | T04 + T05 DONE | H | DONE |
-| T07 | Browser/accessibility proof across desktop/tablet/mobile | T06 DONE | H | READY |
+| T07 | Browser/accessibility proof across desktop/tablet/mobile | T06 DONE | H | DONE |
 | T08 | Architecture/scope invariant proof | T06 DONE | C | DONE |
 
 ```mermaid
@@ -187,7 +187,7 @@ Execution waves:
 - Wave 3: T07 and T08 may run in parallel because their verification surfaces are independent.
 - Wave 4: clean pinned release candidate, fresh Compliance, then workflow-only compliance record/archive.
 
-Current ready frontier: **T07 only** (T08 is integrated; T07 is completing its final browser-proof verification).
+Current ready frontier: **none** - all T01-T08 are integrated. Next: pin a clean release candidate and run the clean verification sequence, then fresh final Compliance.
 
 T01 integrated state: base `c166671e61df0d36617090f226a4ffaf79960c23`; implementation `2b15a1519ddfe5ed805a97341099e617b22eca93`; tooling repair `6ccd5a615643469c82e21ff2bd1faa69844f4b17`; integration commits `55fe9416ebf8d4b24bab338f53400d2446aa9081` and `46a90b93c085050126b04bc48769d7fc2aa1cd4a`; evidence `docs/agents/evidence/T01.md`.
 T02 integrated state: base `9cc7c62199a4b0ecb8d6ea51721200814e163035`; implementation `30891cdb5307cb5e72920ffbbe09e0d8914514b7`; integration commit `92bdc3f26ce7e88261a432279bdbbdae6a009a53`; evidence `docs/agents/evidence/T02.md`.
@@ -196,6 +196,7 @@ T04 integrated state: base `b8e5a0adf5218a5f4d84b06999ca84fc6e0b0b91`; implement
 T05 integrated state: base `38ff2a9641e8ead7acf96aad8d1d1fff864a825e`; implementation `463d0eb9e0542187aea013ba0406ba7e5f0b82aa` plus test-only repair `03e69bf044f3a70e76907258b7c544d05c8745a7`; integration commit `a631fee2fc407aef431ffad842b011b65b454e97`; evidence `docs/agents/evidence/T05.md`.
 T06 integrated state: base `1dd7cb6517c546dace4a625916135d4dd2401699`; implementation `7e77e773adf7c76801379f209f226ff0630e844e`; integration commit `eb1056ec69b4632da78dae3487724e5dcaa21dd0`; evidence `docs/agents/evidence/T06.md`.
 T08 integrated state: base `517a0218e64f7d7de5722310e1808701cff32150`; implementation `4497bf849bb54c4295624d40069844e299edfce7` plus test-only repair `3d3fa3f2ad9754981573cf4171de40ac4af1d111`; integration commit `9c0239724e9032042a2ac1d6c0ca3d5759f1912c`; evidence `docs/agents/evidence/T08.md`.
+T07 integrated state: base `517a0218e64f7d7de5722310e1808701cff32150`; implementation `08127f655dfd8ce6b04c9281dc1349ce69a5fb61` plus repairs `ec35cb8e1138f86366b51021a7e67a347c6a91c5` and `ef76f2032564ace26c220acbeb2b7bef990d84b2`; integration commit `d4ad90cb1dbb1a977ac596f88cdb66cf5297787b`; evidence `docs/agents/evidence/T07.md`.
 
 Do not pre-fill future task `base_commit` values. A dependent task captures its base only after dependencies are integrated and verified.
 
@@ -393,7 +394,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] T03 reaches DONE.
 - [x] T04 and T05 reach DONE.
 - [x] T06 reaches DONE.
-- [ ] T07 and T08 reach DONE.
+- [x] T07 and T08 reach DONE.
 - [ ] Clean release-candidate verification passes.
 - [ ] Fresh DeepSeek Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
 - [ ] Workflow-only compliance record is persisted and its post-pass diff verified.
@@ -425,6 +426,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - 2026-09-11: Record flow-relevant workstation load as an environment factor; the T05 repair keeps required validation reliable without weakening evidence (see docs/agents/learning/incidents/INC-001.md).
 - 2026-09-11: Accept T06 with two low findings and one info observation (test-helper duplication; default no-op instrumentation path vs injectable sink; results region gated on isSuccess). None is a boundary or acceptance violation; all recorded in docs/agents/evidence/T06.md.
 - 2026-09-11: Accept T08 after a test-only repair: the initial Spec review found five under-approximation gaps in the mechanical proof; all five were closed with negative fixtures and independently re-verified. Latent false-positive risks of the widened heuristics are recorded in docs/agents/evidence/T08.md.
+- 2026-09-11: Accept T07 after two bounded repairs (a11y focus/modality fix and a test-only app-readiness fix) with independent re-verification; the browser proof is green across 7 full runs including induced load and the delayed-mount probe proves the readiness wait is load-bearing.
 
 Lasting mock product/behavior decisions remain in `docs/decisions/0001-mock-implementation-baseline.md`, not duplicated as new product authority here.
 
