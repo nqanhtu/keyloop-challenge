@@ -249,5 +249,7 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 - [ ] U07 Full Regression
 - [ ] U08 Fresh UI Compliance
 - [ ] UI REDESIGN: PASS
+
 U01 result: e605376 installed the four approved project-local UI skills (design-systems-frontend-architecture, frontend-design, check-fix-accessibility, webapp-testing).
+
 U02 result: UI architecture plan and the bounded U03 visual-redesign Task Contract persisted at docs/agents/tasks/U03.md; Codex Lead resolved all six architect open questions from repository authority.
