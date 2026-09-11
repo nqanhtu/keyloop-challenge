@@ -245,8 +245,8 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 - [x] U03 Visual Redesign Implementation
 - [x] U04 Fresh Visual + Responsive Browser Review
 - [x] U05 Fresh Accessibility Audit
-- [ ] U06 Bounded Repairs if required
-- [ ] U07 Full Regression
+- [x] U06 Bounded Repairs if required
+- [x] U07 Full Regression
 - [ ] U08 Fresh UI Compliance
 - [ ] UI REDESIGN: PASS
 
@@ -261,3 +261,11 @@ U04 result: fresh browser review at 1280x800, 834x1112 and 390x844 recorded 9 fi
 U05 result: fresh accessibility audit recorded 5 findings (2 high, 2 medium, 1 low); focus containment and muted-token contrast are the release-blocking items; evidence at docs/agents/evidence/U05.md.
 
 U06 status: repair task dispatched from the reconciled U04 and U05 finding set; U03/U04/U05 checkboxes stay marked as reviewed, not as released.
+
+U06 result: 11 reconciled findings repaired in two commits and integrated as main 1f9b73e; a fresh independent verification session confirmed RP-1 .. RP-11 FIXED; evidence at docs/agents/evidence/U06.md.
+
+U06b result: the remaining modal background-scroll residual (R-01) repaired in dbb908c and integrated as main 93a62fd; evidence at docs/agents/evidence/U06.md.
+
+U07 result: full regression on the clean release candidate 93a62fd4e9220eb21dc0c6e2cebe0e6ba7609273 - npm ci, typecheck, lint, 253 unit tests, build and 36/36 browser e2e all PASS, architecture suites 85/85 PASS, no test weakened; evidence at docs/agents/evidence/U07.md.
+
+U08 status: fresh read-only UI compliance audit dispatched against candidate 93a62fd4e9220eb21dc0c6e2cebe0e6ba7609273.
