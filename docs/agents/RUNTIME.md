@@ -44,6 +44,34 @@ still unresolved -> explicitly choose a stronger model only for that bounded pro
 
 Do not run a stronger/maximum-effort model continuously merely as a precaution.
 
+
+## Temporary DeepSeek Fallback
+
+When the normal OpenAI Codex model quota is unavailable, Codex CLI may temporarily use the officially supported DeepSeek provider with **only** `deepseek-v4-flash`.
+
+Fallback policy:
+
+| Role | Model | Reasoning effort | Runtime sandbox | Repository behavior |
+|---|---|---|---|---|
+| Lead | `deepseek-v4-flash` | `high` | `danger-full-access` | logically read-only |
+| Reviewer | `deepseek-v4-flash` | `high` | `danger-full-access` | read-only |
+| Tester | `deepseek-v4-flash` | `high` | `danger-full-access` | read-only |
+| Root-cause diagnosis | `deepseek-v4-flash` | `high` | `danger-full-access` | read-only |
+
+Rules:
+
+- This is a quota-availability fallback, not the normal runtime policy.
+- Use the official DeepSeek Codex/Responses API integration and exact model identifier `deepseek-v4-flash`.
+- Do not store a DeepSeek API key in this repository, task contracts, evidence, logs, or prompts.
+- Keep Codex internal `multi_agent` disabled; Herdr remains the only multi-agent orchestrator.
+- The broader runtime sandbox remains only for Herdr IPC. The repository role remains read-only.
+- Existing repository plans, task contracts, Git provenance, review independence, and evidence gates remain unchanged when the provider changes.
+- A DeepSeek fallback session may continue normal Lead/Reviewer/Tester work, but it must not silently rewrite runtime authority or product/design authority.
+- Final release Compliance remains pinned to the normal `gpt-5.6-sol` / `high` policy. If that model is quota-unavailable, release waits at the final Compliance gate rather than substituting DeepSeek.
+- When OpenAI quota becomes available again, prefer the normal policy for newly started Codex roles. Do not interrupt an in-flight bounded fallback task solely to switch providers.
+
+Before trusting a fallback session, verify its startup/runtime reports the exact DeepSeek model and that Herdr IPC works. Record provider/model in task evidence when the fallback materially participates in review or testing.
+
 ## Antigravity / AGY
 
 The available AGY 1.2.0 model identifiers have been verified in the execution environment.
