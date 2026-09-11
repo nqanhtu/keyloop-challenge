@@ -61,4 +61,52 @@ describe('Architecture Compliance & Import Boundaries (ARCH-HTTP-001, Gate E)', 
       ).toBe(false);
     }
   });
+
+  it('ensures vehicle projection fixtures omit inventoryAgeDays and isAging (AGE-002, Gate E)', () => {
+    const fixturesPath = path.resolve(__dirname, '../mocks/inventory/fixtures.ts');
+    const fixturesContent = fs.readFileSync(fixturesPath, 'utf-8');
+
+    // Fixture source code must not contain inventoryAgeDays or isAging as property keys
+    expect(fixturesContent).not.toMatch(/inventoryAgeDays\s*:/);
+    expect(fixturesContent).not.toMatch(/isAging\s*:/);
+  });
+
+  it('ensures frontend application code does not recompute inventoryAgeDays or isAging (AGE-002, Gate E)', () => {
+    const srcDir = path.resolve(__dirname, '..');
+    const appFiles = getFilesRecursively(path.join(srcDir, 'app'));
+    const apiFiles = getFilesRecursively(path.join(srcDir, 'api'));
+    const allProductionFiles = [...appFiles, ...apiFiles];
+
+    const agingComputationPatterns = [
+      /calculateAging/,
+      />\s*90/,
+      />=\s*91/,
+      /86400000/,
+      /MS_PER_DAY/,
+    ];
+
+    for (const file of allProductionFiles) {
+      const content = fs.readFileSync(file, 'utf-8');
+      const relativePath = path.relative(srcDir, file);
+
+      for (const pattern of agingComputationPatterns) {
+        const hasViolation = pattern.test(content);
+        expect(
+          hasViolation,
+          `File ${relativePath} violates AGE-002 boundary by recomputing aging: ${pattern}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it('ensures vehicle projections use vehicleId for identity and keep vin separate (ARCH-DOM-001)', () => {
+    const typesPath = path.resolve(__dirname, '../mocks/inventory/types.ts');
+    const typesContent = fs.readFileSync(typesPath, 'utf-8');
+
+    // VehicleProjection has vehicleId: string and vin: string
+    expect(typesContent).toMatch(/vehicleId:\s*string;/);
+    expect(typesContent).toMatch(/vin:\s*string;/);
+    expect(typesContent).toMatch(/isPresentInLatestSnapshot:\s*boolean;/);
+    expect(typesContent).toMatch(/upstreamStatus:\s*UpstreamVehicleStatus;/);
+  });
 });
