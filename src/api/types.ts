@@ -68,3 +68,35 @@ export interface InventoryFilterOptions {
   makes: string[];
   models: string[];
 }
+
+export interface InventorySummary {
+  totalInventory: number;
+  agingVehicles: number;
+  agingWithAction: number;
+  lastSuccessfulSyncAt: string;
+}
+
+export interface VehicleActionStatus {
+  id: string;
+  code: string;
+  label: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export interface VehicleAction {
+  id: string;
+  vehicleId: string;
+  statusId: string;
+  status: VehicleActionStatusSummary;
+  note: string | null;
+  createdAt: string;
+  createdByActorId: string;
+  createdByDisplayName: string;
+  createdByType: 'USER' | 'SYSTEM' | 'AI';
+}
+
+export interface CreateVehicleActionInput {
+  statusId: string;
+  note?: string | null;
+}

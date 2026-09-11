@@ -1,5 +1,6 @@
 import type {
   InventoryFilterOptions,
+  InventorySummary,
   VehicleListQuery,
   VehicleListResponse,
   VehicleView,
@@ -164,6 +165,37 @@ export class InventoryService {
     return {
       makes,
       models,
+    };
+  }
+
+  async getSummary(): Promise<InventorySummary> {
+    const allProjections = await this.projectionReader.getAll();
+    const presentProjections = allProjections.filter((p) => p.isPresentInLatestSnapshot);
+
+    const agingProjections = presentProjections.filter((p) => {
+      const { isAging } = calculateAging({
+        stockedAt: p.stockedAt,
+        currentInstant: this.referenceInstant,
+        timeZone: this.timeZone,
+      });
+      return isAging;
+    });
+
+    const agingVehicleIds = agingProjections.map((p) => p.vehicleId);
+    const actionMap = await this.currentActionReader.getCurrentActions(agingVehicleIds);
+
+    const agingWithAction = agingProjections.filter((p) => {
+      const currentAction = actionMap.get(p.vehicleId);
+      return currentAction !== undefined && currentAction !== null;
+    }).length;
+
+    const lastSuccessfulSyncAt = await this.projectionReader.getLastSuccessfulSyncAt();
+
+    return {
+      totalInventory: presentProjections.length,
+      agingVehicles: agingProjections.length,
+      agingWithAction,
+      lastSuccessfulSyncAt,
     };
   }
 }

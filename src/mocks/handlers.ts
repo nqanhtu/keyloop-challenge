@@ -1,16 +1,15 @@
 import type { RequestHandler } from 'msw';
-import { inventoryHandlers } from './inventory/handlers';
+import { createMockBackend } from './composition';
 
-export { inventoryHandlers };
+export const defaultBackend = createMockBackend();
+export const defaultInventoryService = defaultBackend.inventoryService;
+export const defaultActionService = defaultBackend.actionService;
+export const defaultActionRepository = defaultBackend.actionRepository;
+export const defaultStatusCatalog = defaultBackend.statusCatalog;
+export const defaultProjectionReader = defaultBackend.projectionReader;
 
-/**
- * Seams for upcoming task handler composition:
- * - T02: Inventory query & filter endpoints (/vehicles, /inventory/filter-options)
- * - T03: Summary, dynamic action statuses, action history, and manager action persistence
- */
-export const actionHandlers: RequestHandler[] = [];
+export const inventoryHandlers: RequestHandler[] = defaultBackend.inventoryHandlers;
+export const actionHandlers: RequestHandler[] = defaultBackend.actionHandlers;
+export const handlers: RequestHandler[] = defaultBackend.handlers;
 
-export const handlers: RequestHandler[] = [
-  ...inventoryHandlers,
-  ...actionHandlers,
-];
+export { createMockBackend };

@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 import type {
   InventoryFilterOptions,
+  InventorySummary,
   VehicleListQuery,
   VehicleListResponse,
   VehicleView,
@@ -20,4 +21,8 @@ export async function getFilterOptions(params?: { make?: string }): Promise<Inve
   return apiClient.get<InventoryFilterOptions>('/inventory/filter-options', {
     params,
   });
+}
+
+export async function getInventorySummary(): Promise<InventorySummary> {
+  return apiClient.get<InventorySummary>('/inventory/summary');
 }

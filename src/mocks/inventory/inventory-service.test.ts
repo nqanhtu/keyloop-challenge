@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { InventoryService } from './inventory-service';
 import { mockSyncMetadata } from './fixtures';
-import { EmptyCurrentActionReader } from './action-reader';
+import type { VehicleActionSummary } from '../../api/types';
+import { EmptyCurrentActionReader, type CurrentActionReader } from './action-reader';
 import { FixtureVehicleProjectionReader } from './projection-reader';
 
 describe('Inventory Service Seam (ARCH-DOM-001, INV-004, INV-007, AGE-002)', () => {
@@ -190,6 +191,47 @@ describe('Inventory Service Seam (ARCH-DOM-001, INV-004, INV-007, AGE-002)', () 
       expect(options.models).toContain('X5');
       expect(options.models).not.toContain('A4');
       expect(options.models).not.toContain('Q7');
+    });
+  });
+
+  describe('getSummary (INV-005, Seam 8)', () => {
+    it('derives totalInventory, agingVehicles, agingWithAction, and sync timestamp accurately', async () => {
+      const summary = await service.getSummary();
+
+      expect(summary.totalInventory).toBe(55);
+      expect(summary.agingVehicles).toBeGreaterThan(0);
+      expect(summary.agingWithAction).toBe(0);
+      expect(summary.lastSuccessfulSyncAt).toBe(mockSyncMetadata.lastSuccessfulSyncAt);
+    });
+
+    it('derives agingWithAction when CurrentActionReader provides actions', async () => {
+      const mockActionReader: CurrentActionReader = {
+        getCurrentAction: () => null,
+        getCurrentActions: (vehicleIds) => {
+          const map = new Map<string, VehicleActionSummary>();
+          if (vehicleIds.includes('veh_001')) {
+            map.set('veh_001', {
+              id: 'act_1',
+              status: { id: 's1', code: 'C1', label: 'L1' },
+              note: null,
+              createdAt: '2026-06-01T10:00:00Z',
+              createdByDisplayName: 'Alex',
+              createdByType: 'USER',
+            });
+          }
+          return map;
+        },
+      };
+
+      const customService = new InventoryService({
+        projectionReader: new FixtureVehicleProjectionReader(),
+        currentActionReader: mockActionReader,
+        timeZone: 'UTC',
+        referenceInstant: '2026-06-01T12:00:00Z',
+      });
+
+      const summary = await customService.getSummary();
+      expect(summary.agingWithAction).toBe(1);
     });
   });
 });
