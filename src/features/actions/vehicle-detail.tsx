@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { VehicleActionSummary, VehicleView } from '../../api/types';
-import { Button } from '../../app/ui';
+import { Button, trapTabKey } from '../../app/ui';
 import { clientErrorMessage } from '../errors/business-errors';
 import { AgingIndicator } from '../inventory/components/aging-indicator';
 import { VehicleDetailSkeleton } from '../inventory/components/loading-skeleton';
@@ -82,6 +82,7 @@ export function VehicleDetail({
   const variant = DETAIL_VARIANT_BY_TIER[tier];
   const vehicle = detailQuery.data;
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   /**
    * Focus-out must run exactly once, when the detail unmounts, while still
    * seeing the opener that was current at close time. Mirroring the latest
@@ -115,15 +116,27 @@ export function VehicleDetail({
     };
   }, []);
 
+  /**
+   * UI §17.8 / §18: while the drawer/sheet/fullscreen is modal, Tab and
+   * Shift+Tab cycle inside it (focus never reaches the dimmed background or
+   * lands on <body>), and Escape still closes it.
+   */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+      if (event.key === 'Tab') {
+        const root = dialogRef.current;
+        if (root) {
+          trapTabKey(root, event);
+        }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
   return (
@@ -132,6 +145,7 @@ export function VehicleDetail({
        * reads as layered above the page rather than as a floating box. */}
       <div className="vehicle-detail-scrim" aria-hidden="true" onClick={onClose} />
       <div
+        ref={dialogRef}
         className={`vehicle-detail vehicle-detail--${variant}`}
         role="dialog"
         aria-modal="true"
@@ -203,11 +217,8 @@ function VehicleSummary({ vehicle }: { vehicle: VehicleView }) {
         </div>
         <div className="vehicle-detail__fact">
           <dt>Inventory age</dt>
-          <dd>{vehicle.inventoryAgeDays} days</dd>
-        </div>
-        <div className="vehicle-detail__fact">
-          <dt>Aging</dt>
           <dd>
+            {vehicle.inventoryAgeDays} days{' '}
             <AgingIndicator isAging={vehicle.isAging} />
           </dd>
         </div>

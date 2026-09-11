@@ -5,12 +5,17 @@
  */
 @layer components {
   /* --- Shell ------------------------------------------------------------ */
+  /* RP-7 (U05 F4): the dashboard is the route's main landmark. */
   .inventory-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* The inert page subtree (RP-1) carries the dashboard's vertical rhythm. */
+  .inventory-dashboard__page {
     display: flex;
     flex-direction: column;
     gap: var(--ui-space-32);
-    max-width: 1200px;
-    margin: 0 auto;
   }
 
   /* --- Operational header (identity + freshness) ------------------------ */
@@ -85,7 +90,10 @@
   /* --- KPI grid (numeric-first, aging emphasis) ------------------------- */
   .kpi-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* RP-11 (U04 F-09): `min(100%, 200px)` keeps the three-up desktop grid
+     * while letting a card shrink below 200px instead of forcing horizontal
+     * page overflow at sub-minimum widths (for example a 195px probe). */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
     gap: var(--ui-space-16);
   }
 
@@ -93,6 +101,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--ui-space-8);
+    min-width: 0;
     padding: var(--ui-space-16) var(--ui-space-24);
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius-10);
@@ -257,6 +266,16 @@
     margin-top: var(--ui-space-8);
   }
 
+  /*
+   * RP-4 (U04 F-01): the desktop inline form keeps each two-field group on one
+   * row, so quick controls plus the filter row stay the compact two-line
+   * composition drawn in UI §6.1 instead of stacking into a tall, half-empty
+   * panel. It still wraps when a narrow desktop viewport genuinely needs it.
+   */
+  .filter-bar .filter-group__fields {
+    grid-template-columns: repeat(2, minmax(9.5rem, 1fr));
+  }
+
   .filter-field--age input {
     width: 9rem;
     max-width: 100%;
@@ -353,6 +372,19 @@
   .filter-sheet .filter-controls {
     flex-direction: column;
     align-items: stretch;
+    /*
+     * RP-6 (U04 F-05): the base `.filter-controls` sets `flex-wrap: wrap`.
+     * On a column flex container that turns each group into a wrapped line and
+     * stretches it into a fixed 168px box holding ~65px of content; `nowrap`
+     * lets every group size to its content.
+     */
+    flex-wrap: nowrap;
+  }
+
+  /* RP-6 (U04 F-05): fields share their group column's width instead of the
+   * 9rem cap the desktop age inputs use. */
+  .filter-sheet .filter-field--age input {
+    width: 100%;
   }
 
   .filter-sheet__actions {
@@ -424,7 +456,15 @@
   /* --- Inventory table -------------------------------------------------- */
   .vehicle-table-scroll {
     max-width: 100%;
+    /*
+     * RP-10 (U04 F-08): bounding the results region vertically is what makes
+     * the sticky column header actually stay in view while the inventory is
+     * scanned. Horizontal scroll is unchanged, so no page-level overflow is
+     * introduced.
+     */
+    max-height: min(68vh, 44rem);
     overflow-x: auto;
+    overflow-y: auto;
     /* Interior padding keeps the 2px focus ring from being clipped at the edge. */
     padding: var(--ui-space-4);
   }
@@ -489,9 +529,23 @@
     letter-spacing: -0.01em;
   }
 
-  .vehicle-table__current-action {
-    display: block;
-    margin-bottom: var(--ui-space-8);
+  .vehicle-table__current-action-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ui-space-8);
+  }
+
+  /*
+   * RP-5 (U04 F-02): the tablet compact table keeps the current-action status
+   * and the Details control on one line, so compact rows are shorter than the
+   * dense desktop rows instead of stacking a second text line into every row.
+   */
+  .vehicle-table--compact .vehicle-table__current-action-cell {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   .vehicle-table__select {
@@ -731,6 +785,21 @@
       height: 1.75rem;
     }
 
+    /*
+     * RP-3 (U04 F-03): the "Aging only" control is a first-class quick control,
+     * so on the touch tiers the whole control (checkbox plus its label) must be
+     * a >=44px tall target. The checkbox glyph stays, the label stretches.
+     */
+    .toolbar-field--toggle {
+      min-height: 2.75rem;
+    }
+
+    .toolbar-field--toggle label {
+      display: inline-flex;
+      align-items: center;
+      align-self: stretch;
+    }
+
     .vehicle-card__select {
       width: 100%;
       align-self: stretch;
@@ -738,7 +807,7 @@
   }
 
   @media (max-width: 767px) {
-    .inventory-dashboard {
+    .inventory-dashboard__page {
       gap: var(--ui-space-24);
     }
 

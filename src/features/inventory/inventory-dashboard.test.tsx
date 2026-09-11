@@ -469,3 +469,27 @@ describe('T04 — Accessibility seam (A11Y-001)', () => {
     expect(screen.getByRole('button', { name: 'Remove Make filter' })).toBeInTheDocument();
   });
 });
+
+describe('U06 — Current-action scannability (RP-9, U04 F-07)', () => {
+  it('marks the no-action state with a neutral pill distinct from an existing action', async () => {
+    renderInventory();
+
+    await waitFor(() => expect(dataRows().length).toBe(50));
+    const rows = dataRows();
+    const noAction = rows.find((row) => row.textContent?.includes('1HGCR2F83HA000001'));
+    const withAction = rows.find((row) => row.textContent?.includes('Legacy Hold'));
+
+    expect(noAction).toBeTruthy();
+    expect(withAction).toBeTruthy();
+
+    // The no-action state is a distinct, non-colour-only pill...
+    expect(
+      noAction!.querySelector('.vehicle-table__current-action.ui-status-pill--empty'),
+    ).not.toBeNull();
+    // ...while an existing action stays a readable neutral pill.
+    expect(withAction!.querySelector('.vehicle-table__current-action')).not.toBeNull();
+    expect(
+      withAction!.querySelector('.vehicle-table__current-action.ui-status-pill--empty'),
+    ).toBeNull();
+  });
+});
