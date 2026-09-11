@@ -18,10 +18,11 @@ import { computeFreshness } from './freshness';
 import { useActionStatuses, useInventoryFilterOptions, useInventorySummary, useVehicleList } from './queries';
 import {
   DEFAULT_INVENTORY_SORT,
-  INVENTORY_PAGE_SIZE,
+  DEFAULT_PAGE_SIZE,
   INVENTORY_SORT_OPTIONS,
   applyFilterChange,
   applyPageChange,
+  applyPageSizeChange,
   applySortChange,
   clearAllFilters,
   closeVehicleDetail,
@@ -71,9 +72,10 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
 
   const page = search.page ?? 1;
   const sort = search.sort ?? DEFAULT_INVENTORY_SORT;
+  const pageSize = search.pageSize ?? DEFAULT_PAGE_SIZE;
   const vehicles = listQuery.data?.data ?? [];
   const total = listQuery.data?.meta.total ?? 0;
-  const pageCount = Math.max(1, Math.ceil(total / INVENTORY_PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const statuses = statusesQuery.data ?? [];
 
   /**
@@ -290,7 +292,7 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
               vehicles={vehicles}
               rowCount={total}
               page={page}
-              pageSize={INVENTORY_PAGE_SIZE}
+              pageSize={pageSize}
               density={tier === 'tablet' ? 'compact' : 'full'}
               onSelectVehicle={selectVehicle}
             />
@@ -301,7 +303,11 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
               page={page}
               pageCount={pageCount}
               total={total}
+              pageSize={pageSize}
               onPageChange={(nextPage) => onApplySearch(applyPageChange(search, nextPage))}
+              onPageSizeChange={(nextPageSize) =>
+                onApplySearch(applyPageSizeChange(search, nextPageSize))
+              }
             />
           )}
         </section>

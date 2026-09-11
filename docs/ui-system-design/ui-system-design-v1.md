@@ -307,7 +307,7 @@ Breakpoints are semantic presentation tiers, not device detection.
 - Secondary filters remain directly reachable without leaving context.
 - Detail opens as a right-side drawer.
 - Inventory context remains visible behind/beside detail.
-- Pagination remains visible beneath results.
+- Pagination remains visible beneath results and includes the page-size control.
 
 ### 11.2 Tablet
 
@@ -395,6 +395,10 @@ Inventory filters:
 - Inventory status
 - Action status
 
+Result controls (rendered with the pagination region):
+
+- Page size (25 / 50 / 100, default 50)
+
 ### 13.2 Behavior
 
     filter change
@@ -402,6 +406,11 @@ Inventory filters:
       -> reset page to 1
       -> request server-filtered results
       -> preserve dashboard shell
+
+    page size change
+      -> update URL
+      -> reset page to 1
+      -> request the server page
 
 Make/model dependency:
 
@@ -412,6 +421,9 @@ Make/model dependency:
 ### 13.3 Active-filter visibility
 
 Applied filters appear as removable chips. Clear all removes collection filters and returns to the default collection state without destroying unrelated vehicle-detail context unless the interaction explicitly closes detail.
+
+Page size is a view control, not a filter constraint, so it never appears as an
+active-filter chip and Clear all preserves the selected page size.
 
 ### 13.4 Mobile/tablet sheet
 
