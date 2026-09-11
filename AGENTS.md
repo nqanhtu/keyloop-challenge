@@ -41,11 +41,13 @@ Before creating or reviewing task worktrees, also read `docs/agents/BRANCHING.md
 
 Execution responsibilities:
 - Herdr is orchestration/lifecycle only.
-- Codex is Lead, Auditor, Reviewer, Tester, and final Compliance authority.
-- Codex is repository-mutation read-only: runtime permissions may be broader for Herdr IPC, but Codex does not write source or durable workflow files itself.
-- Antigravity is the only normal repository writer: Builder/Repairer/Integrator for implementation and Workflow Scribe for Codex-directed durable workflow artifacts.
-- Antigravity must not change System Design or silently expand implementation scope.
-- Workflow Scribe writes only the exact Codex-approved workflow artifact content and paths; it does not invent product or architecture decisions.
+- The active runtime is DeepSeek-only under `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
+- All roles run as fresh or role-appropriate Codex CLI sessions backed by `deepseek-flash`; provider identity does not collapse role boundaries.
+- Lead/Auditor/Reviewer/Tester/Compliance are repository-mutation read-only.
+- Builder/Repairer/Integrator are bounded implementation writers; Workflow Scribe is a workflow-artifact-only writer.
+- A session that wrote implementation must not review, test-approve, or perform Compliance on its own work.
+- Writer roles must not change System Design or silently expand implementation scope.
+- Workflow Scribe writes only the exact Lead-approved workflow artifact content and paths; it does not invent product or architecture decisions.
 
 Use progressive disclosure:
 - Codex Lead reads the complete System Design and accepted decisions initially.
@@ -56,7 +58,7 @@ Use progressive disclosure:
 Project overrides for installed generic skills:
 - A Task Contract `test_seams` section is the pre-agreed seam authority for autonomous TDD. Do not ask the human to reconfirm those seams unless repository authority genuinely lacks the necessary decision.
 - For code review, `base_commit` is the fixed point and the Task Contract + referenced System Design/Decision sections are the originating spec. `docs/agents/issue-tracker.md` defines the local adapter; GitHub Issues are not the delivery control plane.
-- Project workflow learning may update only project-owned workflow artifacts under `docs/agents/` and repository-native project tests/checks through an Antigravity writer. Do not modify the Harness-managed block, `.harness-core/`, Harness-owned core skills, or generic Harness workflow files unless the user explicitly authorizes `$improve-harness`.
+- Project workflow learning may update only project-owned workflow artifacts under `docs/agents/` and repository-native project tests/checks through an authorized DeepSeek writer role. Do not modify the Harness-managed block, `.harness-core/`, Harness-owned core skills, or generic Harness workflow files unless the user explicitly authorizes `$improve-harness`.
 
 Task/release provenance rules:
 - Capture a task `base_commit` before persisting its Task Contract, then create the Builder worktree from that captured commit so workflow-record commits do not pollute the implementation diff. Follow `docs/agents/BRANCHING.md`.
