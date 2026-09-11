@@ -8,7 +8,7 @@ Active
 
 ## Outcome
 
-Deliver the approved Scenario B Intelligent Inventory Dashboard implementation end to end: a production-quality responsive React frontend backed by an HTTP-faithful MSW mock backend, with traceable automated/observable evidence for every implementation requirement and a final fresh Codex Compliance `RELEASE: PASS` verdict.
+Deliver the approved Scenario B Intelligent Inventory Dashboard implementation end to end: a production-quality responsive React frontend backed by an HTTP-faithful MSW mock backend, with traceable automated/observable evidence for every implementation requirement and a final fresh DeepSeek Compliance `RELEASE: PASS` verdict.
 
 This plan is the single durable delivery state for the autonomous run. Repository state and executable/observable evidence outrank agent/session claims.
 
@@ -31,8 +31,8 @@ Bootstrap facts:
 - At that commit the repository contains workflow/design material but no application implementation at the repository root.
 - The prior read-only dry run produced a 49-requirement registry and an acyclic T01–T08 decomposition. This plan normalizes that result against the accepted decision above rather than recompiling the design during normal orchestration.
 - Herdr IPC has been runtime-verified from Codex Lead as `HERDR_RUNTIME_OK`.
-- AGY runtime identifiers are pinned in `docs/agents/RUNTIME.md`.
-- Codex remains logically repository-mutation read-only even when runtime sandbox permissions are broader for Herdr IPC.
+- DeepSeek-only runtime roles are authorized by `docs/decisions/0002-deepseek-only-autonomous-runtime.md` and pinned in `docs/agents/RUNTIME.md`.
+- Lead/Reviewer/Tester/Compliance remain logically repository-mutation read-only; DeepSeek Builder/Repairer/Integrator/Scribe are scoped writer roles.
 
 ## Scope Classification
 
@@ -173,7 +173,7 @@ flowchart TD
   T06 --> T08[T08 Architecture Proof]
   T07 --> RC[Clean Pinned Release Candidate]
   T08 --> RC
-  RC --> COMP[Fresh Codex Compliance]
+  RC --> COMP[Fresh DeepSeek Compliance]
   COMP --> RECORD[Workflow-only Compliance Record + Plan Archive]
 ```
 
@@ -350,12 +350,12 @@ blockers: []
 1. Lead computes the READY frontier from this plan.
 2. Lead captures current coordination HEAD `B` before Task Contract persistence.
 3. Lead compiles exact Task Contract with authority, requirements, seams, scope, acceptance, validation, and `base_commit: B`.
-4. AGY Workflow Scribe persists the contract on the coordination branch.
+4. DeepSeek Workflow Scribe persists the contract on the coordination branch.
 5. Builder worktree starts from `B` and receives the bounded contract explicitly.
 6. Lead verifies implementation commit, scope diff, and Builder capsule.
-7. Fresh Codex Reviewer reviews against `B` and the contract/authority, not Builder reasoning.
+7. Fresh DeepSeek Reviewer reviews against `B` and the contract/authority, not Builder reasoning.
 8. Required targeted tests run; findings route to bounded repair and back through affected review/test gates.
-9. AGY Integrator applies reviewed work onto current coordination branch.
+9. DeepSeek Integrator applies reviewed work onto current coordination branch.
 10. Lead verifies integrated state; Scribe persists evidence and plan transition separately.
 11. Only then may dependent tasks enter READY.
 
@@ -366,8 +366,8 @@ blockers: []
 - **Workflow-record contamination:** Scribe commits can pollute task diffs. Mitigation: follow pre-contract `base_commit` protocol and Builder-from-base rule exactly.
 - **Agent/session crash:** do not redispatch based on pane status. Reconcile contract base, branch/worktree commits, coordination HEAD, evidence, and Herdr state first.
 - **Flaky browser proof:** do not retry-until-green. Preserve original failure, classify nondeterminism, repair or keep release blocked.
-- **Runtime usage pressure:** normal Codex orchestration uses the pinned medium-effort policy; escalate only for bounded material review/diagnosis difficulty.
-- **Permission breadth:** Codex runtime may have broad filesystem permission for Herdr IPC but remains logically mutation-read-only; unexpected Codex-created repository changes are a workflow violation and must be removed/reconciled before advancing.
+- **Runtime usage pressure:** all active roles use `deepseek-flash/high`; control cost through bounded context, fresh role sessions, and repository-native evidence rather than provider/model escalation.
+- **Permission breadth:** runtime may have broad filesystem permission for Herdr IPC, but each DeepSeek session remains constrained by its assigned read/write role; unexpected role-crossingreated repository changes are a workflow violation and must be removed/reconciled before advancing.
 
 Recovery principle: do not delete uncertain branches/worktrees/state. Repository/Git/evidence decide recovery, not process liveness.
 
@@ -376,7 +376,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] System Design approved.
 - [x] Autonomous role/branching/quality/runtime contracts established.
 - [x] Herdr IPC verified from Codex Lead.
-- [x] AGY model identifiers verified and pinned.
+- [x] DeepSeek-only runtime verified in Herdr and pinned.
 - [x] Four dry-run implementation authority gaps resolved by accepted Decision 0001.
 - [x] 49-requirement registry normalized.
 - [x] T01–T08 DAG normalized; T01 identified as sole READY frontier.
@@ -390,7 +390,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [ ] T06 reaches DONE.
 - [ ] T07 and T08 reach DONE.
 - [ ] Clean release-candidate verification passes.
-- [ ] Fresh Codex Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
+- [ ] Fresh DeepSeek Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
 - [ ] Workflow-only compliance record is persisted and its post-pass diff verified.
 - [ ] This plan is moved to `docs/plans/completed/` with release evidence reference.
 
@@ -405,7 +405,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 | D — Browser E2E | PENDING | primary flow + reload persistence on desktop/tablet/mobile |
 | E — Architecture compliance | PENDING | accepted-boundary positive/negative/mechanical evidence |
 | Clean candidate | PENDING | fresh checkout at pinned SHA; all applicable gates pass |
-| Final Compliance | PENDING | fresh Codex Compliance matrix has no FAIL/UNVERIFIED |
+| Final Compliance | PENDING | fresh DeepSeek Compliance matrix has no FAIL/UNVERIFIED |
 | Post-pass provenance | PENDING | workflow-record-only diff after audited release candidate |
 
 ## Decisions
