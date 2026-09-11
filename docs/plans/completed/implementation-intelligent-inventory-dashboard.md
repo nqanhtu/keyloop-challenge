@@ -396,9 +396,9 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] T06 reaches DONE.
 - [x] T07 and T08 reach DONE.
 - [x] Clean release-candidate verification passes.
-- [ ] Fresh DeepSeek Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
-- [ ] Workflow-only compliance record is persisted and its post-pass diff verified.
-- [ ] This plan is moved to `docs/plans/completed/` with release evidence reference.
+- [x] Fresh DeepSeek Compliance records no FAIL/UNVERIFIED and returns `RELEASE: PASS`.
+- [x] Workflow-only compliance record is persisted and its post-pass diff verified.
+- [x] This plan is moved to `docs/plans/completed/` with release evidence reference.
 
 ## Release Candidate
 
@@ -418,8 +418,8 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 | D — Browser E2E | PASS | primary flow + reload persistence at desktop/tablet/mobile (18 e2e tests across 3 projects, repeated green) |
 | E — Architecture compliance | PASS | accepted-boundary mechanical proof over src/app, src/api, src/features + design-only scope proof (85 architecture tests) |
 | Clean candidate | PASS | fresh checkout at pinned release_candidate_commit 2d3f0d501c7df534d713d0bfe96e8e48a7f99ff0; all applicable gates pass |
-| Final Compliance | PENDING | fresh DeepSeek Compliance matrix has no FAIL/UNVERIFIED |
-| Post-pass provenance | PENDING | workflow-record-only diff after audited release candidate |
+| Final Compliance | PASS | fresh DeepSeek Compliance matrix has no FAIL/UNVERIFIED; see docs/agents/evidence/release-compliance.md |
+| Post-pass provenance | PASS | the post-pass workflow-record commit changes only docs/agents/evidence/release-compliance.md and moves this plan to docs/plans/completed/; verified by Codex Lead with git diff --name-only between the audited candidate and the workflow-record commit |
 
 ## Decisions
 
