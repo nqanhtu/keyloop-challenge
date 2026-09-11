@@ -154,8 +154,8 @@ All 49 requirements begin `PLANNED`; task state and evidence, not this registry 
 |---|---|---|---:|---|
 | T01 | Runnable React/TS + Router/Query + typed HTTP/MSW + test/build foundation | none | C | DONE |
 | T02 | Authoritative mock inventory reads, aging, filters/sort/page/options/detail | T01 DONE | C | DONE |
-| T03 | Persistent append-only action/status service and summary completion | T02 DONE | C | READY |
-| T04 | Responsive inventory dashboard and URL-owned discovery UX | T03 DONE | H | PLANNED |
+| T03 | Persistent append-only action/status service and summary completion | T02 DONE | C | DONE |
+| T04 | Responsive inventory dashboard and URL-owned discovery UX | T03 DONE | H | READY |
 | T05 | Responsive detail/action form/history + optimistic mutation | T03 DONE | H | PLANNED |
 | T06 | Cross-feature consistency, errors, freshness, loading, instrumentation | T04 + T05 DONE | H | PLANNED |
 | T07 | Browser/accessibility proof across desktop/tablet/mobile | T06 DONE | H | PLANNED |
@@ -187,10 +187,11 @@ Execution waves:
 - Wave 3: T07 and T08 may run in parallel because their verification surfaces are independent.
 - Wave 4: clean pinned release candidate, fresh Compliance, then workflow-only compliance record/archive.
 
-Current ready frontier: **T03 only**.
+Current ready frontier: **T04 only**. T05 is serialized after T04 because both own the shared router/URL-shell/detail seam; Lead verified the overlap and chose serialization over parallel dispatch.
 
 T01 integrated state: base `c166671e61df0d36617090f226a4ffaf79960c23`; implementation `2b15a1519ddfe5ed805a97341099e617b22eca93`; tooling repair `6ccd5a615643469c82e21ff2bd1faa69844f4b17`; integration commits `55fe9416ebf8d4b24bab338f53400d2446aa9081` and `46a90b93c085050126b04bc48769d7fc2aa1cd4a`; evidence `docs/agents/evidence/T01.md`.
 T02 integrated state: base `9cc7c62199a4b0ecb8d6ea51721200814e163035`; implementation `30891cdb5307cb5e72920ffbbe09e0d8914514b7`; integration commit `92bdc3f26ce7e88261a432279bdbbdae6a009a53`; evidence `docs/agents/evidence/T02.md`.
+T03 integrated state: base `129f6480503138aabcf9c8ab4bb348775ac86afb`; implementation `3817c9cdf2f3bde2cd8b2abd1c71f7343bdc81f8`; integration commit `ab8fb5ee5c5283d593f7d3b687a6957cff9cdb12`; evidence `docs/agents/evidence/T03.md`.
 
 Do not pre-fill future task `base_commit` values. A dependent task captures its base only after dependencies are integrated and verified.
 
@@ -385,7 +386,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - [x] Scribe persists canonical `docs/agents/tasks/T01.md`.
 - [x] T01 implementation/review/test/integration/evidence reaches DONE.
 - [x] T02 reaches DONE.
-- [ ] T03 reaches DONE.
+- [x] T03 reaches DONE.
 - [ ] T04 and T05 reach DONE.
 - [ ] T06 reaches DONE.
 - [ ] T07 and T08 reach DONE.
@@ -414,6 +415,7 @@ Recovery principle: do not delete uncertain branches/worktrees/state. Repository
 - 2026-09-10: Keep T01 foundation-only; inventory/action semantics remain owned by T02/T03.
 - 2026-09-10: Do not preselect package manager/build tool as product authority. T01 Builder may choose a stable conventional setup as a reversible implementation detail, but must commit one lockfile and deterministic repository commands.
 - 2026-09-10: Do not pre-create canonical future Task Contracts because their truthful `base_commit` values depend on the integrated coordination state at dispatch time.
+- 2026-09-11: Serialize T04 then T05 instead of parallel dispatch because both own the shared router/URL-shell/detail seam; T04 becomes the sole READY frontier after T03 integration.
 
 Lasting mock product/behavior decisions remain in `docs/decisions/0001-mock-implementation-baseline.md`, not duplicated as new product authority here.
 
