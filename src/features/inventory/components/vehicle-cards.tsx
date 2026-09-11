@@ -3,13 +3,15 @@ import { AgingIndicator } from './aging-indicator';
 
 export interface VehicleCardsProps {
   vehicles: VehicleView[];
+  onSelectVehicle: (vehicleId: string) => void;
 }
 
 /**
  * System Design 6.3: the mobile presentation prioritizes make/model, inventory
- * age, aging status, and current action.
+ * age, aging status, and current action (System Design 6.5 selection opens the
+ * full-screen detail surface).
  */
-export function VehicleCards({ vehicles }: VehicleCardsProps) {
+export function VehicleCards({ vehicles, onSelectVehicle }: VehicleCardsProps) {
   return (
     <ul className="vehicle-cards" aria-label="Inventory vehicles">
       {vehicles.map((vehicle) => (
@@ -35,6 +37,14 @@ export function VehicleCards({ vehicles }: VehicleCardsProps) {
               </dd>
             </div>
           </dl>
+          <button
+            type="button"
+            className="button vehicle-card__select"
+            onClick={() => onSelectVehicle(vehicle.vehicleId)}
+            aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
+          >
+            Details
+          </button>
         </li>
       ))}
     </ul>

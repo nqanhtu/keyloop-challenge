@@ -15,45 +15,78 @@ function stockedDate(value: string): string {
   return value.slice(0, 10);
 }
 
-const fullColumns = columnHelper.columns([
-  columnHelper.accessor('make', { header: 'Make' }),
-  columnHelper.accessor('model', { header: 'Model' }),
-  columnHelper.accessor('vin', { header: 'VIN' }),
-  columnHelper.accessor('stockedAt', {
-    header: 'Stocked',
-    cell: (info) => stockedDate(info.getValue()),
-  }),
-  columnHelper.accessor('inventoryAgeDays', { header: 'Age (days)' }),
-  columnHelper.accessor('upstreamStatus', { header: 'Status' }),
-  columnHelper.accessor('isAging', {
-    header: 'Aging',
-    cell: (info) => <AgingIndicator isAging={info.getValue()} />,
-  }),
-  columnHelper.display({
-    id: 'currentAction',
-    header: 'Current action',
-    cell: (info) => currentActionLabel(info.row.original),
-  }),
-]);
+/**
+ * System Design 6.5: selecting a vehicle opens the detail surface. The control
+ * carries the VIN so its accessible name is unique across the inventory.
+ */
+function selectVehicleControl(
+  vehicle: VehicleView,
+  onSelectVehicle: (vehicleId: string) => void,
+) {
+  return (
+    <button
+      type="button"
+      className="button vehicle-table__select"
+      onClick={() => onSelectVehicle(vehicle.vehicleId)}
+      aria-label={`View details for ${vehicle.make} ${vehicle.model} (${vehicle.vin})`}
+    >
+      Details
+    </button>
+  );
+}
+
+function currentActionCell(vehicle: VehicleView, onSelectVehicle: (vehicleId: string) => void) {
+  return (
+    <>
+      <span className="vehicle-table__current-action">{currentActionLabel(vehicle)}</span>
+      {selectVehicleControl(vehicle, onSelectVehicle)}
+    </>
+  );
+}
+
+function buildFullColumns(onSelectVehicle: (vehicleId: string) => void) {
+  return columnHelper.columns([
+    columnHelper.accessor('make', { header: 'Make' }),
+    columnHelper.accessor('model', { header: 'Model' }),
+    columnHelper.accessor('vin', { header: 'VIN' }),
+    columnHelper.accessor('stockedAt', {
+      header: 'Stocked',
+      cell: (info) => stockedDate(info.getValue()),
+    }),
+    columnHelper.accessor('inventoryAgeDays', { header: 'Age (days)' }),
+    columnHelper.accessor('upstreamStatus', { header: 'Status' }),
+    columnHelper.accessor('isAging', {
+      header: 'Aging',
+      cell: (info) => <AgingIndicator isAging={info.getValue()} />,
+    }),
+    columnHelper.display({
+      id: 'currentAction',
+      header: 'Current action',
+      cell: (info) => currentActionCell(info.row.original, onSelectVehicle),
+    }),
+  ]);
+}
 
 /**
  * Tablet condensation (System Design 6.3): identification, age, aging status,
  * and current action stay; lower-priority fields are dropped.
  */
-const compactColumns = columnHelper.columns([
-  columnHelper.accessor('make', { header: 'Make' }),
-  columnHelper.accessor('model', { header: 'Model' }),
-  columnHelper.accessor('inventoryAgeDays', { header: 'Age (days)' }),
-  columnHelper.accessor('isAging', {
-    header: 'Aging',
-    cell: (info) => <AgingIndicator isAging={info.getValue()} />,
-  }),
-  columnHelper.display({
-    id: 'currentAction',
-    header: 'Current action',
-    cell: (info) => currentActionLabel(info.row.original),
-  }),
-]);
+function buildCompactColumns(onSelectVehicle: (vehicleId: string) => void) {
+  return columnHelper.columns([
+    columnHelper.accessor('make', { header: 'Make' }),
+    columnHelper.accessor('model', { header: 'Model' }),
+    columnHelper.accessor('inventoryAgeDays', { header: 'Age (days)' }),
+    columnHelper.accessor('isAging', {
+      header: 'Aging',
+      cell: (info) => <AgingIndicator isAging={info.getValue()} />,
+    }),
+    columnHelper.display({
+      id: 'currentAction',
+      header: 'Current action',
+      cell: (info) => currentActionCell(info.row.original, onSelectVehicle),
+    }),
+  ]);
+}
 
 export interface VehicleTableProps {
   vehicles: VehicleView[];
@@ -61,6 +94,7 @@ export interface VehicleTableProps {
   page: number;
   pageSize: number;
   density: 'full' | 'compact';
+  onSelectVehicle: (vehicleId: string) => void;
 }
 
 /**
@@ -75,10 +109,11 @@ export function VehicleTable({
   page,
   pageSize,
   density,
+  onSelectVehicle,
 }: VehicleTableProps) {
-  const columns = (density === 'compact'
-    ? compactColumns
-    : fullColumns) as unknown as Array<ColumnDef<typeof features, VehicleView, unknown>>;
+  const columns = (
+    density === 'compact' ? buildCompactColumns(onSelectVehicle) : buildFullColumns(onSelectVehicle)
+  ) as unknown as Array<ColumnDef<typeof features, VehicleView, unknown>>;
 
   const table = useTable({
     features,

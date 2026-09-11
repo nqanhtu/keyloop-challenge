@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { VehicleSortOption } from '../../api/types';
+import { VehicleDetail } from '../actions/vehicle-detail';
 import { AgingIndicator } from './components/aging-indicator';
 import { ActiveFilterChips, buildFilterChips, type FilterChip } from './components/filter-chips';
 import { FilterSheet, InlineFilterBar } from './components/filter-panel';
@@ -16,7 +17,9 @@ import {
   applyPageChange,
   applySortChange,
   clearAllFilters,
+  closeVehicleDetail,
   hasActiveFilters,
+  openVehicleDetail,
   type InventorySearch,
 } from './search';
 import { useViewportTier } from './use-viewport-tier';
@@ -47,6 +50,9 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   const total = listQuery.data?.meta.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / INVENTORY_PAGE_SIZE));
   const statuses = statusesQuery.data ?? [];
+
+  /** System Design 6.5: selection is URL state, so discovery values survive. */
+  const selectVehicle = (vehicleId: string) => onApplySearch(openVehicleDetail(search, vehicleId));
 
   const filterControlsProps = {
     idPrefix: 'inventory-filter',
@@ -145,7 +151,7 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         )}
 
         {listQuery.isSuccess && vehicles.length > 0 && tier === 'mobile' && (
-          <VehicleCards vehicles={vehicles} />
+          <VehicleCards vehicles={vehicles} onSelectVehicle={selectVehicle} />
         )}
 
         {listQuery.isSuccess && vehicles.length > 0 && tier !== 'mobile' && (
@@ -155,6 +161,7 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
             page={page}
             pageSize={INVENTORY_PAGE_SIZE}
             density={tier === 'tablet' ? 'compact' : 'full'}
+            onSelectVehicle={selectVehicle}
           />
         )}
 
@@ -172,6 +179,14 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         <AgingIndicator isAging />
         <span>Aging inventory is 91 or more days in stock.</span>
       </div>
+
+      {search.vehicleId && (
+        <VehicleDetail
+          vehicleId={search.vehicleId}
+          tier={tier}
+          onClose={() => onApplySearch(closeVehicleDetail(search))}
+        />
+      )}
     </div>
   );
 }

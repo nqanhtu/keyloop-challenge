@@ -39,6 +39,11 @@ export interface InventorySearch {
   agingOnly?: boolean;
   sort?: VehicleSortOption;
   page?: number;
+  /**
+   * System Design 6.5: the detail surface is selected through the URL so the
+   * discovery state around it stays shareable and survives open/close.
+   */
+  vehicleId?: string;
 }
 
 function readText(value: unknown): string | undefined {
@@ -85,6 +90,7 @@ export function parseInventorySearch(input: Record<string, unknown>): InventoryS
     agingOnly: readBoolean(input.agingOnly),
     sort,
     page: readInteger(input.page, 1),
+    vehicleId: readText(input.vehicleId),
   });
 }
 
@@ -101,6 +107,7 @@ export function pruneInventorySearch(search: InventorySearch): InventorySearch {
   if (search.agingOnly) pruned.agingOnly = true;
   if (search.sort) pruned.sort = search.sort;
   if (search.page !== undefined && search.page > 1) pruned.page = search.page;
+  if (search.vehicleId) pruned.vehicleId = search.vehicleId;
 
   return pruned;
 }
@@ -144,6 +151,18 @@ export function applyPageChange(search: InventorySearch, page: number): Inventor
 /** Clear all removes every filter and returns to the first page, keeping sort. */
 export function clearAllFilters(search: InventorySearch): InventorySearch {
   return pruneInventorySearch({ sort: search.sort });
+}
+
+/**
+ * Opening the detail surface keeps every T04 discovery value untouched and only
+ * adds the selected vehicle; closing it removes exactly that value.
+ */
+export function openVehicleDetail(search: InventorySearch, vehicleId: string): InventorySearch {
+  return pruneInventorySearch({ ...search, vehicleId });
+}
+
+export function closeVehicleDetail(search: InventorySearch): InventorySearch {
+  return pruneInventorySearch({ ...search, vehicleId: undefined });
 }
 
 /** Builds the server query. Every server-side key is sent explicitly. */

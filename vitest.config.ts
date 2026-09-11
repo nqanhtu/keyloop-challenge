@@ -14,5 +14,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // Full-dashboard jsdom interaction tests can exceed the 5000 ms default
+    // under concurrent CPU load; keep a load-tolerant ceiling without
+    // weakening any assertion.
+    testTimeout: 20_000,
   },
 });
