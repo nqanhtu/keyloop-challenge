@@ -1,96 +1,79 @@
 # Agent Runtime Policy
 
-This file pins the normal runtime model/effort policy for autonomous delivery. Repository workflow/evidence provides most of the reliability; stronger models are escalation tools rather than the default for every step.
+This file pins the active autonomous runtime policy. The accepted authority for the current provider/role mode is `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
 
-## Herdr
+## Active Mode
 
-Herdr is the only multi-agent orchestrator for this repository.
+The workflow is **DeepSeek-only** until explicitly superseded.
 
-Codex internal `multi_agent` must remain disabled for Lead/Reviewer/Tester/Compliance sessions so agent lifecycle stays visible in Herdr.
-
-## Codex
-
-Normal policy:
-
-| Role | Model | Reasoning effort | Runtime sandbox | Repository behavior |
-|---|---|---|---|---|
-| Lead | `gpt-5.6-sol` | `medium` | `danger-full-access` | logically read-only |
-| Reviewer | `gpt-5.6-sol` | `medium` | `danger-full-access` | read-only |
-| Tester | `gpt-5.6-terra` | `medium` | `danger-full-access` | read-only |
-| Root-cause escalation | `gpt-5.6-sol` | `high` | `danger-full-access` | read-only |
-| Final Compliance | `gpt-5.6-sol` | `high` | `danger-full-access` | read-only |
-
-`danger-full-access` is required in the current macOS/Herdr environment because Codex sandbox modes block access to Herdr's local Unix control socket. This is runtime permission only; it does not change the repository role contract. Codex must not create, edit, delete, stage, commit, or otherwise mutate repository files during this workflow.
-
-Always launch Codex with explicit model and effort. Do not inherit global defaults.
-
-Example Lead native arguments:
+All roles run as Herdr-managed Codex CLI sessions backed by:
 
 ```text
--m gpt-5.6-sol
--c model_reasoning_effort="medium"
+model = deepseek-flash
+model_reasoning_effort = high
+```
+
+Herdr remains the only multi-agent orchestrator. Codex internal `multi_agent` must remain disabled.
+
+## Role Runtime Policy
+
+| Role | Model | Reasoning | Runtime sandbox | Repository behavior |
+|---|---|---|---|---|
+| Lead | `deepseek-flash` | `high` | `danger-full-access` | logically read-only |
+| Builder | `deepseek-flash` | `high` | `danger-full-access` | bounded task-worktree writer |
+| Repairer | `deepseek-flash` | `high` | `danger-full-access` | bounded repair writer |
+| Reviewer | `deepseek-flash` | `high` | `danger-full-access` | read-only, fresh session |
+| Tester | `deepseek-flash` | `high` | `danger-full-access` | read-only, fresh session |
+| Integrator | `deepseek-flash` | `high` | `danger-full-access` | serialized coordination-branch writer |
+| Workflow Scribe | `deepseek-flash` | `high` | `danger-full-access` | workflow-artifact-only writer |
+| Compliance | `deepseek-flash` | `high` | `danger-full-access` | read-only, fresh session |
+
+`danger-full-access` is required in the current macOS/Herdr environment because narrower Codex sandbox modes block Herdr's local Unix control socket. Runtime filesystem permission does not grant role permission: each session must obey the mutation boundary in the table and its Task Contract.
+
+A session that implemented or repaired code must not review, test-approve, integrate-approve, or perform final Compliance on its own work. Start fresh sessions for independent gates.
+
+## Launch
+
+The local Codex configuration is expected to use the official DeepSeek Responses API provider and model catalog.
+
+Normal launch arguments inside a Herdr-managed pane:
+
+```text
+-m deepseek-flash
+-c model_reasoning_effort="high"
 -s danger-full-access
 -a never
 --disable multi_agent
 ```
 
-Escalation policy:
+Do not put the DeepSeek API key in this repository, prompts, task contracts, evidence, or logs.
 
-```text
-normal reasoning -> Sol / medium
-material review or diagnosis difficulty -> Sol / high
-still unresolved -> explicitly choose a stronger model only for that bounded problem
-```
+## Writer Boundaries
 
-Do not run a stronger/maximum-effort model continuously merely as a precaution.
+- Builder writes only implementation/tests within the current Task Contract.
+- Repairer writes only the smallest repair surface authorized by findings.
+- Integrator writes only reviewed integration/merge work and is serialized with Workflow Scribe on the coordination branch.
+- Workflow Scribe writes only exact Lead-approved project workflow artifacts.
+- Lead/Reviewer/Tester/Compliance remain repository-mutation read-only even though their runtime sandbox is broad.
 
-
-## Temporary DeepSeek Fallback
-
-When the normal OpenAI Codex model quota is unavailable, Codex CLI may temporarily use the officially supported DeepSeek provider with **only** `deepseek-flash`.
-
-Fallback policy:
-
-| Role | Model | Reasoning effort | Runtime sandbox | Repository behavior |
-|---|---|---|---|---|
-| Lead | `deepseek-flash` | `high` | `danger-full-access` | logically read-only |
-| Reviewer | `deepseek-flash` | `high` | `danger-full-access` | read-only |
-| Tester | `deepseek-flash` | `high` | `danger-full-access` | read-only |
-| Root-cause diagnosis | `deepseek-flash` | `high` | `danger-full-access` | read-only |
-
-Rules:
-
-- This is a quota-availability fallback, not the normal runtime policy.
-- Use the official DeepSeek Codex/Responses API integration and exact model identifier `deepseek-flash`.
-- Do not store a DeepSeek API key in this repository, task contracts, evidence, logs, or prompts.
-- Keep Codex internal `multi_agent` disabled; Herdr remains the only multi-agent orchestrator.
-- The broader runtime sandbox remains only for Herdr IPC. The repository role remains read-only.
-- Existing repository plans, task contracts, Git provenance, review independence, and evidence gates remain unchanged when the provider changes.
-- A DeepSeek fallback session may continue normal Lead/Reviewer/Tester work, but it must not silently rewrite runtime authority or product/design authority.
-- Final release Compliance remains pinned to the normal `gpt-5.6-sol` / `high` policy. If that model is quota-unavailable, release waits at the final Compliance gate rather than substituting DeepSeek.
-- When OpenAI quota becomes available again, prefer the normal policy for newly started Codex roles. Do not interrupt an in-flight bounded fallback task solely to switch providers.
-
-Before trusting a fallback session, verify its startup/runtime reports the exact DeepSeek model and that Herdr IPC works. Record provider/model in task evidence when the fallback materially participates in review or testing.
-
-## Antigravity / AGY
-
-The available AGY 1.2.0 model identifiers have been verified in the execution environment.
-
-| Role | Model |
-|---|---|
-| Workflow Scribe | `gemini-3.8-flash-medium` |
-| Builder | `gemini-3.8-flash-high` |
-| Repairer | `gemini-3.8-flash-high` |
-| Integrator | `gemini-3.8-flash-high` |
-
-Use exact model identifiers when starting each AGY agent. Do not depend on its saved/default model.
-
-Workflow Scribe receives exact Codex-approved content and paths. Builder/Repairer/Integrator receive bounded Task Contracts and relevant context only.
+No role may change System Design, accepted product semantics, Harness-managed/core files, or unrelated scope without separate authority.
 
 ## Runtime Verification
 
-A launch is trusted only after its effective runtime configuration is observable. At minimum verify model/effort for Codex and exact resolved model for AGY.
+A newly started role is trusted only after its effective runtime is observable.
 
-The current environment has already demonstrated that a Codex Lead launched with `gpt-5.6-sol`, medium effort, and `danger-full-access` can access Herdr IPC and report `HERDR_RUNTIME_OK`.
+Verify at minimum:
 
-If a later CLI/Herdr/macOS version allows scoped Unix-socket access while preserving a read-only filesystem sandbox, prefer that narrower runtime permission after verifying it works. The logical Codex read-only role remains unchanged either way.
+- startup reports `deepseek-flash`;
+- reasoning is `high`;
+- the session is in the intended repository/worktree;
+- Herdr IPC works when the role needs orchestration;
+- writer/read-only behavior matches the assigned role.
+
+The environment has already demonstrated:
+
+```text
+DEEPSEEK_HERDR_RUNTIME_OK
+```
+
+Provider choice does not weaken task acceptance, review, test, clean release-candidate, or final Compliance evidence requirements.
