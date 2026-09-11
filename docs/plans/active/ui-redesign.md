@@ -240,8 +240,8 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 
 ## Current State
 
-- [ ] U01 Skill Bootstrap
-- [ ] U02 UI Architecture / Implementation Plan
+- [x] U01 Skill Bootstrap
+- [x] U02 UI Architecture / Implementation Plan
 - [ ] U03 Visual Redesign Implementation
 - [ ] U04 Fresh Visual + Responsive Browser Review
 - [ ] U05 Fresh Accessibility Audit
@@ -249,3 +249,5 @@ Pane cleanup is part of orchestration completion, not optional manual housekeepi
 - [ ] U07 Full Regression
 - [ ] U08 Fresh UI Compliance
 - [ ] UI REDESIGN: PASS
+U01 result: e605376 installed the four approved project-local UI skills (design-systems-frontend-architecture, frontend-design, check-fix-accessibility, webapp-testing).
+U02 result: UI architecture plan and the bounded U03 visual-redesign Task Contract persisted at docs/agents/tasks/U03.md; Codex Lead resolved all six architect open questions from repository authority.
