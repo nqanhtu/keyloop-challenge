@@ -176,6 +176,7 @@
 
   .toolbar-field label,
   .filter-field label,
+  .pagination__size label,
   .filter-group__legend {
     color: var(--ui-text-muted);
     font-size: var(--ui-text-12);
@@ -186,7 +187,8 @@
 
   .toolbar-field select,
   .filter-field select,
-  .filter-field input {
+  .filter-field input,
+  .pagination__size select {
     min-width: 0;
     max-width: 100%;
     min-height: 2.5rem;
@@ -204,13 +206,15 @@
 
   .toolbar-field select:hover,
   .filter-field select:hover,
-  .filter-field input:hover {
+  .filter-field input:hover,
+  .pagination__size select:hover {
     border-color: var(--ui-text-muted);
   }
 
   .toolbar-field select:disabled,
   .filter-field select:disabled,
-  .filter-field input:disabled {
+  .filter-field input:disabled,
+  .pagination__size select:disabled {
     cursor: not-allowed;
     opacity: 0.55;
   }
@@ -683,6 +687,23 @@
     gap: var(--ui-space-8);
   }
 
+  /*
+   * Decision 0004 / UI §11.1, §13.1: the page-size select stays inside the
+   * pagination region. The group wraps as a unit so the control can never
+   * force horizontal page overflow at the narrow reference tiers.
+   */
+  .pagination__size {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ui-space-8);
+    min-width: 0;
+  }
+
+  .pagination__size label {
+    white-space: nowrap;
+  }
+
   .pagination__status {
     color: var(--ui-text-primary);
     font-weight: var(--ui-weight-semibold);
@@ -776,7 +797,8 @@
 
     .toolbar-field select,
     .filter-field select,
-    .filter-field input {
+    .filter-field input,
+    .pagination__size select {
       min-height: 2.75rem;
     }
 

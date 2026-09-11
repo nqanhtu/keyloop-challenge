@@ -1,11 +1,13 @@
 import type { VehicleListQuery, VehicleSortOption } from '../../api/types';
 
 /**
- * System Design 6.8: approximately 50 records are rendered per page.
- * Page size is a fixed presentation constant; it is not part of the URL state
- * because the design only makes filters, sort, and page URL-owned.
+ * Decision 0004 / System Design 6.8 (as amended): page size is URL-owned and
+ * user-selectable. The allowed values are 25, 50, and 100; the default of 50
+ * is omitted from the URL and always sent to the server as the effective size.
  */
-export const INVENTORY_PAGE_SIZE = 50;
+export const PAGE_SIZE_OPTIONS: ReadonlyArray<number> = [25, 50, 100];
+
+export const DEFAULT_PAGE_SIZE = 50;
 
 /** System Design 5.2: default ordering is `inventoryAgeDays DESC` (oldest first). */
 export const DEFAULT_INVENTORY_SORT: VehicleSortOption = 'inventoryAgeDays:desc';
@@ -39,6 +41,11 @@ export interface InventorySearch {
   agingOnly?: boolean;
   sort?: VehicleSortOption;
   page?: number;
+  /**
+   * Decision 0004: the selected page size is URL state. Only the designed
+   * options are accepted and the default is omitted from the URL.
+   */
+  pageSize?: number;
   /**
    * System Design 6.5: the detail surface is selected through the URL so the
    * discovery state around it stays shareable and survives open/close.
@@ -79,6 +86,11 @@ function readBoolean(value: unknown): boolean | undefined {
 export function parseInventorySearch(input: Record<string, unknown>): InventorySearch {
   const rawSort = readText(input.sort);
   const sort = rawSort && SORT_VALUES.includes(rawSort) ? (rawSort as VehicleSortOption) : undefined;
+  const rawPageSize = readInteger(input.pageSize, 1);
+  const pageSize =
+    rawPageSize !== undefined && PAGE_SIZE_OPTIONS.includes(rawPageSize)
+      ? rawPageSize
+      : undefined;
 
   return pruneInventorySearch({
     make: readText(input.make),
@@ -90,6 +102,7 @@ export function parseInventorySearch(input: Record<string, unknown>): InventoryS
     agingOnly: readBoolean(input.agingOnly),
     sort,
     page: readInteger(input.page, 1),
+    pageSize,
     vehicleId: readText(input.vehicleId),
   });
 }
@@ -107,6 +120,10 @@ export function pruneInventorySearch(search: InventorySearch): InventorySearch {
   if (search.agingOnly) pruned.agingOnly = true;
   if (search.sort) pruned.sort = search.sort;
   if (search.page !== undefined && search.page > 1) pruned.page = search.page;
+  // Decision 0004: only a non-default page size is meaningful URL state.
+  if (search.pageSize !== undefined && search.pageSize !== DEFAULT_PAGE_SIZE) {
+    pruned.pageSize = search.pageSize;
+  }
   if (search.vehicleId) pruned.vehicleId = search.vehicleId;
 
   return pruned;
@@ -149,12 +166,25 @@ export function applyPageChange(search: InventorySearch, page: number): Inventor
 }
 
 /**
+ * Decision 0004: changing the page size re-partitions the whole result set, so
+ * the previous page number is no longer meaningful and the page returns to 1.
+ */
+export function applyPageSizeChange(search: InventorySearch, pageSize: number): InventorySearch {
+  return pruneInventorySearch({ ...search, pageSize, page: undefined });
+}
+
+/**
  * Clear all removes every collection filter and returns to the first page,
- * keeping sort. UI System Design §13.3: it must not destroy unrelated
- * vehicle-detail context, so the URL-owned `vehicleId` survives.
+ * keeping sort and page size. UI System Design §13.3: page size is a view
+ * control rather than a filter constraint, and it must not destroy unrelated
+ * vehicle-detail context, so the URL-owned `vehicleId` survives too.
  */
 export function clearAllFilters(search: InventorySearch): InventorySearch {
-  return pruneInventorySearch({ sort: search.sort, vehicleId: search.vehicleId });
+  return pruneInventorySearch({
+    sort: search.sort,
+    pageSize: search.pageSize,
+    vehicleId: search.vehicleId,
+  });
 }
 
 /**
@@ -181,6 +211,6 @@ export function toVehicleListQuery(search: InventorySearch): VehicleListQuery {
     agingOnly: search.agingOnly ? true : undefined,
     sort: search.sort ?? DEFAULT_INVENTORY_SORT,
     page: search.page ?? 1,
-    pageSize: INVENTORY_PAGE_SIZE,
+    pageSize: search.pageSize ?? DEFAULT_PAGE_SIZE,
   };
 }
