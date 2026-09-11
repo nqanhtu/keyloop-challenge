@@ -123,24 +123,42 @@ The production backend architecture described in the System Design — including
 
 ## Verification
 
-The release candidate was verified with:
+The latest verified application state passed:
 
 - TypeScript: PASS
 - ESLint: PASS
 - Build: PASS
-- Vitest: **239 tests PASS**
-- Playwright: **18 tests PASS** across desktop, tablet, and mobile
-- Architecture suites: **85 tests PASS**
+- Vitest: **283 tests PASS across 29 test files**
+- Playwright: **48 E2E tests PASS** across desktop, tablet, and mobile
+- Architecture suites: **85 architecture checks PASS**
 
-The completed release compliance record is available at:
+Verification evidence is recorded under `docs/agents/evidence/`, including the completed UI compliance, pagination/page-size verification, and root-routing verification.
 
-- [Release compliance](docs/agents/evidence/release-compliance.md)
+## AI Collaboration Narrative
+
+I used GenAI as an engineering collaborator rather than as the final authority for the solution.
+
+The workflow separated responsibilities across independent agent roles:
+
+1. A Lead agent analyzed requirements, architecture, assumptions, and task boundaries.
+2. Builder agents implemented bounded tasks from explicit task contracts.
+3. Fresh Reviewer and Tester sessions independently checked the resulting code and behavior.
+4. Findings were routed back through bounded repair tasks instead of allowing the implementation agent to approve its own work.
+5. Final compliance passes compared the integrated solution against the System Design, UI System Design, and executable evidence.
+
+The repository acted as the durable source of truth. Important architecture decisions, assumptions, task contracts, verification evidence, and accepted design changes were persisted in Markdown rather than relying on agent conversation history.
+
+I also used GenAI for adversarial verification, not only implementation. Independent browser and accessibility review found issues that normal implementation checks did not initially reveal, including modal focus escaping into the background page, insufficient touch-target sizing, contrast problems, and background scrolling while a modal was open. Those findings were repaired and independently re-verified.
+
+A later independent verification pass also found malformed URL states that could produce invalid pagination output such as `NaN` or `Infinity`. That led to defensive normalization at the router and query boundary, followed by another clean verification pass.
+
+AI-generated code and recommendations were treated as proposals. Workflow state advanced only when repository state plus executable or observable evidence supported the result. Final responsibility for architecture, product behavior, trade-offs, and acceptance criteria remained with me.
 
 ## Documentation
 
 - [System Design](docs/system-design/system-design-v1.md)
 - [UI System Design](docs/ui-system-design/ui-system-design-v1.md)
-- [Active UI redesign plan](docs/plans/active/ui-redesign.md)
+- [Completed UI redesign plan](docs/plans/completed/ui-redesign.md)
 - [Completed implementation plan](docs/plans/completed/implementation-intelligent-inventory-dashboard.md)
 - [Agent/workflow documentation](docs/agents/README.md)
 
