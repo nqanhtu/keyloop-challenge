@@ -139,6 +139,8 @@ The completed release compliance record is available at:
 ## Documentation
 
 - [System Design](docs/system-design/system-design-v1.md)
+- [UI System Design](docs/ui-system-design/ui-system-design-v1.md)
+- [Active UI redesign plan](docs/plans/active/ui-redesign.md)
 - [Completed implementation plan](docs/plans/completed/implementation-intelligent-inventory-dashboard.md)
 - [Agent/workflow documentation](docs/agents/README.md)
 
