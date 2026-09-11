@@ -44,7 +44,7 @@ Workflow Scribe is the controlled writer for durable orchestration state when Co
 It may write only Codex-approved content to project-owned workflow paths:
 
 ```text
-docs/plans/active/implementation.md
+docs/plans/active/<current-plan>.md
 docs/agents/tasks/**
 docs/agents/evidence/**
 docs/agents/learning/**
@@ -296,7 +296,7 @@ The workflow must survive terminating Codex, DeepSeek, or Herdr sessions.
 A fresh Codex Lead resumes in this order:
 
 1. read `AGENTS.md` and `docs/agents/README.md`;
-2. read `docs/plans/active/implementation.md` if present;
+2. inspect `docs/plans/active/` and read the single current plan if present;
 3. inspect Git branch/worktree/commit state and Herdr live-agent state;
 4. read only evidence/task files referenced by the current plan state;
 5. reconcile discrepancies before dispatching new work.
