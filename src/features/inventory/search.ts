@@ -80,17 +80,34 @@ function readBoolean(value: unknown): boolean | undefined {
 }
 
 /**
+ * Decision 0004: the effective page size for every consumer. Anything that is
+ * not one of the designed options — a hand-typed `37`, `abc`, `0`, `1000`, a
+ * negative number, or a missing value — resolves to the documented default, so
+ * the server query, the rendered page, and the page count can never disagree.
+ */
+export function normalizePageSize(value: unknown): number {
+  const candidate = readInteger(value, 1);
+  return candidate !== undefined && PAGE_SIZE_OPTIONS.includes(candidate)
+    ? candidate
+    : DEFAULT_PAGE_SIZE;
+}
+
+/**
+ * URL state keeps only a supported, non-default page size; the default is
+ * omitted so it never appears in the address bar.
+ */
+function readPageSize(value: unknown): number | undefined {
+  const pageSize = normalizePageSize(value);
+  return pageSize === DEFAULT_PAGE_SIZE ? undefined : pageSize;
+}
+
+/**
  * Normalizes raw router search input into the URL-owned discovery state.
  * Unknown or malformed values are dropped rather than propagated to the API.
  */
 export function parseInventorySearch(input: Record<string, unknown>): InventorySearch {
   const rawSort = readText(input.sort);
   const sort = rawSort && SORT_VALUES.includes(rawSort) ? (rawSort as VehicleSortOption) : undefined;
-  const rawPageSize = readInteger(input.pageSize, 1);
-  const pageSize =
-    rawPageSize !== undefined && PAGE_SIZE_OPTIONS.includes(rawPageSize)
-      ? rawPageSize
-      : undefined;
 
   return pruneInventorySearch({
     make: readText(input.make),
@@ -102,7 +119,7 @@ export function parseInventorySearch(input: Record<string, unknown>): InventoryS
     agingOnly: readBoolean(input.agingOnly),
     sort,
     page: readInteger(input.page, 1),
-    pageSize,
+    pageSize: readPageSize(input.pageSize),
     vehicleId: readText(input.vehicleId),
   });
 }
@@ -199,7 +216,11 @@ export function closeVehicleDetail(search: InventorySearch): InventorySearch {
   return pruneInventorySearch({ ...search, vehicleId: undefined });
 }
 
-/** Builds the server query. Every server-side key is sent explicitly. */
+/**
+ * Builds the server query. Every server-side key is sent explicitly, and the
+ * page size goes through the same normalization as URL state so the request
+ * can never carry an unsupported value even if a caller passes one through.
+ */
 export function toVehicleListQuery(search: InventorySearch): VehicleListQuery {
   return {
     make: search.make,
@@ -211,6 +232,6 @@ export function toVehicleListQuery(search: InventorySearch): VehicleListQuery {
     agingOnly: search.agingOnly ? true : undefined,
     sort: search.sort ?? DEFAULT_INVENTORY_SORT,
     page: search.page ?? 1,
-    pageSize: search.pageSize ?? DEFAULT_PAGE_SIZE,
+    pageSize: normalizePageSize(search.pageSize),
   };
 }

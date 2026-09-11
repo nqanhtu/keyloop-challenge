@@ -154,3 +154,76 @@ describe('Decision 0004 — page-size control integration', () => {
     });
   });
 });
+
+/** Serves as many rows as the requested page size, echoing page/pageSize back. */
+function serveEchoedInventory(total: number, requests: URL[]) {
+  server.use(
+    http.get('/vehicles', ({ request }) => {
+      const url = new URL(request.url);
+      requests.push(url);
+      const page = Number(url.searchParams.get('page') ?? '1');
+      const pageSize = Number(url.searchParams.get('pageSize') ?? '50');
+      const firstIndex = (page - 1) * pageSize;
+      const rows = Math.max(0, Math.min(pageSize, total - firstIndex));
+      return HttpResponse.json({
+        data: Array.from({ length: rows }, (_, index) => ({
+          ...SAMPLE_VEHICLE,
+          vehicleId: `veh_page_size_${firstIndex + index}`,
+          vin: `VIN_PAGE_SIZE_${firstIndex + index}`,
+        })),
+        meta: { page, pageSize, total, lastSuccessfulSyncAt: '2026-06-01T12:00:00Z' },
+      });
+    }),
+  );
+}
+
+/**
+ * F-01: a hand-typed, unsupported URL value must never become the effective
+ * collection state. The dashboard renders the sanitized InventorySearch, so the
+ * control, the page count, the rendered rows, and the server request all agree
+ * on the designed default rather than the raw address-bar value.
+ */
+describe('F-01 — unsupported URL values are normalized before render and request', () => {
+  it.each(['37', 'abc', '0', '1000', '-5'])(
+    'normalizes /inventory?pageSize=%s to the default 50',
+    async (rawPageSize) => {
+      const requests: URL[] = [];
+      serveEchoedInventory(120, requests);
+
+      renderInventory(`/inventory?pageSize=${rawPageSize}`);
+
+      // The control reports the effective size, not the first option.
+      expect(await screen.findByLabelText('Rows per page')).toHaveValue('50');
+      // The page count is finite and derived from the effective size (120/50 = 3).
+      await waitFor(() => {
+        expect(screen.getByTestId('pagination-status')).toHaveTextContent('Page 1 of 3');
+      });
+      // The raw value never reaches the server.
+      await waitFor(() => {
+        expect(lastRequest(requests).searchParams.get('pageSize')).toBe('50');
+      });
+      // The rendered page equals the effective size (header row + 50 body rows).
+      await waitFor(() => {
+        expect(screen.getAllByRole('row')).toHaveLength(51);
+      });
+    },
+  );
+
+  it('normalizes an unsupported page and sort alongside the page size', async () => {
+    const requests: URL[] = [];
+    serveEchoedInventory(120, requests);
+
+    renderInventory('/inventory?page=abc&sort=bogus&pageSize=37');
+
+    expect(await screen.findByLabelText('Rows per page')).toHaveValue('50');
+    await waitFor(() => {
+      expect(screen.getByTestId('pagination-status')).toHaveTextContent('Page 1 of 3');
+    });
+    await waitFor(() => {
+      const request = lastRequest(requests);
+      expect(request.searchParams.get('page')).toBe('1');
+      expect(request.searchParams.get('pageSize')).toBe('50');
+      expect(request.searchParams.get('sort')).toBe('inventoryAgeDays:desc');
+    });
+  });
+});
