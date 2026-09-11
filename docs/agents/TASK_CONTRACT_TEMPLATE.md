@@ -1,6 +1,6 @@
 # Task Contract Template
 
-Codex Lead compiles one bounded task contract before dispatching implementation to Antigravity.
+Codex Lead compiles one bounded task contract before dispatching implementation to DeepSeek Builder.
 
 A task contract is an execution handoff, not a replacement for the System Design. It contains only the context required for this task.
 
@@ -9,7 +9,7 @@ A task contract is an execution handoff, not a replacement for the System Design
 ```yaml
 task_id: <EPIC/STORY/TASK identifier>
 title: <short behavior-oriented title>
-role: antigravity-builder|antigravity-repairer|antigravity-integrator|antigravity-scribe
+role: deepseek-builder|deepseek-repairer|deepseek-integrator|deepseek-scribe
 
 objective: >
   <one concrete outcome observable from the product or repository>
@@ -68,7 +68,7 @@ output:
 
 ## Autonomous TDD Seam Rule
 
-For this repository, `test_seams` in a Codex-approved Task Contract are the pre-agreed testing seams required by the installed `tdd` skill. Antigravity must not stop to ask the user to reconfirm those seams.
+For this repository, `test_seams` in a Codex-approved Task Contract are the pre-agreed testing seams required by the installed `tdd` skill. DeepSeek Builder must not stop to ask the user to reconfirm those seams.
 
 Escalate to Codex Lead only when the declared seam conflicts with repository authority or a materially different seam would change architecture, product semantics, or verification validity. Codex escalates to the human only when the System Design and repository authority genuinely cannot resolve that choice.
 
@@ -129,7 +129,7 @@ They remain architectural design material unless the user explicitly changes imp
 
 ## Reversible Implementation Decisions
 
-Antigravity may autonomously choose local implementation details such as component decomposition, helper names, fixture organization, CSS implementation, test helper structure, and storage key naming when those choices do not alter an explicit contract.
+DeepSeek Builder may autonomously choose local implementation details such as component decomposition, helper names, fixture organization, CSS implementation, test helper structure, and storage key naming when those choices do not alter an explicit contract.
 
 It must escalate through Codex Lead when multiple interpretations would materially change:
 
@@ -142,7 +142,7 @@ It must escalate through Codex Lead when multiple interpretations would material
 
 ## Workflow Scribe Contract
 
-When Codex is running with a read-only sandbox, durable workflow state is written by a dedicated Antigravity Workflow Scribe.
+When Codex is running with a read-only sandbox, durable workflow state is written by a dedicated DeepSeek Workflow Scribe.
 
 A Scribe task must contain the exact destination path and Codex-approved content or patch intent. The Scribe may write only project-owned workflow artifacts such as:
 
@@ -158,7 +158,7 @@ The Scribe must not modify source implementation, System Design, the Harness-man
 
 ## Evidence Capsule Template
 
-At completion, Antigravity returns:
+At completion, DeepSeek Builder returns:
 
 ```yaml
 task: <TASK-ID>
