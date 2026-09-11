@@ -39,6 +39,16 @@ No external backend, database, or application environment variables are required
 
 In development, the frontend still talks through its HTTP/API layer. **MSW** intercepts those HTTP requests in the browser and provides the challenge's mock backend behavior.
 
+### Deploy the demo to Vercel
+
+This repository is a frontend-only demo, so configure this Vercel environment variable for each Preview and Production deployment:
+
+```text
+VITE_ENABLE_MOCKS=true
+```
+
+Vite embeds `VITE_*` values at build time, so redeploy after setting or changing the variable. The committed `vercel.json` rewrite lets the canonical `/inventory` route load directly on Vercel; the MSW worker then intercepts the app's relative API requests in the browser.
+
 ## Available Commands
 
 ```bash
