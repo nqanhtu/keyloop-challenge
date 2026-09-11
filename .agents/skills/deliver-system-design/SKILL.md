@@ -219,7 +219,7 @@ The Builder receives only:
 3. matching promoted project rules;
 4. relevant source/tests.
 
-Do not send the entire prior Codex/AGY transcript or all historical incidents.
+Do not send the entire prior role-session transcript or all historical incidents.
 
 ## Phase 5 — Builder Result and Evidence Capsule
 
@@ -443,7 +443,7 @@ Only DeepSeek Compliance may decide:
 RELEASE: PASS
 ```
 
-If compliance fails, route findings back through the bounded AGY repair loop, integrate the repair, pin a new release candidate, and rerun affected gates plus final compliance.
+If compliance fails, route findings back through the bounded DeepSeek repair loop, integrate the repair, pin a new release candidate, and rerun affected gates plus final compliance.
 
 If compliance passes, keep the audited candidate SHA immutable as the product release identity.
 
