@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { isApiError } from '../../api';
+import { clientErrorMessage } from '../errors/business-errors';
 import { useActionStatuses } from '../inventory/queries';
 import { useCreateVehicleAction } from './queries';
 
@@ -69,7 +69,7 @@ export function CreateActionForm({ vehicleId }: CreateActionFormProps) {
 
       {mutation.isError && (
         <p className="create-action-form__error" role="alert">
-          {isApiError(mutation.error) ? mutation.error.message : 'Unable to record the action.'}
+          {clientErrorMessage(mutation.error)}
         </p>
       )}
     </form>

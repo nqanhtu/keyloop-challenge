@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import type { VehicleSortOption } from '../../api/types';
 import { VehicleDetail } from '../actions/vehicle-detail';
+import { clientErrorMessage } from '../errors/business-errors';
+import { useAppEnvironment } from '../observability/environment';
 import { AgingIndicator } from './components/aging-indicator';
 import { ActiveFilterChips, buildFilterChips, type FilterChip } from './components/filter-chips';
 import { FilterSheet, InlineFilterBar } from './components/filter-panel';
+import { FreshnessNotice } from './components/freshness-notice';
 import { KpiCards } from './components/kpi-cards';
+import { InventoryListSkeleton, KpiCardsSkeleton } from './components/loading-skeleton';
 import { Pagination } from './components/pagination';
+import { RegionalError } from './components/regional-error';
 import { VehicleCards } from './components/vehicle-cards';
 import { VehicleTable } from './components/vehicle-table';
+import { computeFreshness } from './freshness';
 import { useActionStatuses, useInventoryFilterOptions, useInventorySummary, useVehicleList } from './queries';
 import {
   DEFAULT_INVENTORY_SORT,
@@ -37,6 +43,7 @@ export interface InventoryDashboardProps {
  */
 export function InventoryDashboard({ search, onApplySearch }: InventoryDashboardProps) {
   const tier = useViewportTier();
+  const { now } = useAppEnvironment();
   const [isFilterSheetOpen, setFilterSheetOpen] = useState(false);
 
   const summaryQuery = useInventorySummary();
@@ -50,6 +57,16 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   const total = listQuery.data?.meta.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / INVENTORY_PAGE_SIZE));
   const statuses = statusesQuery.data ?? [];
+
+  /**
+   * System Design 8.5: freshness comes from server-provided sync metadata and a
+   * controllable current time; the warning never replaces the inventory.
+   */
+  const freshness = computeFreshness({
+    lastSuccessfulSyncAt:
+      listQuery.data?.meta.lastSuccessfulSyncAt ?? summaryQuery.data?.lastSuccessfulSyncAt,
+    now: now(),
+  });
 
   /** System Design 6.5: selection is URL state, so discovery values survive. */
   const selectVehicle = (vehicleId: string) => onApplySearch(openVehicleDetail(search, vehicleId));
@@ -75,7 +92,21 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         </p>
       </header>
 
-      <KpiCards summary={summaryQuery.data} />
+      <FreshnessNotice freshness={freshness} />
+
+      {summaryQuery.isPending ? (
+        <KpiCardsSkeleton />
+      ) : summaryQuery.isError ? (
+        <section className="kpi-section" aria-label="Inventory summary">
+          <RegionalError
+            region="inventory summary"
+            message={clientErrorMessage(summaryQuery.error, 'Unable to load the inventory summary.')}
+            onRetry={() => void summaryQuery.refetch()}
+          />
+        </section>
+      ) : (
+        <KpiCards summary={summaryQuery.data} />
+      )}
 
       <section className="inventory-discovery" aria-label="Inventory discovery">
         <div className="inventory-toolbar">
@@ -142,6 +173,16 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
         aria-label="Inventory results"
         aria-busy={listQuery.isFetching}
       >
+        {listQuery.isPending && <InventoryListSkeleton />}
+
+        {listQuery.isError && (
+          <RegionalError
+            region="inventory results"
+            message={clientErrorMessage(listQuery.error, 'Unable to load inventory.')}
+            onRetry={() => void listQuery.refetch()}
+          />
+        )}
+
         {listQuery.isSuccess && vehicles.length === 0 && (
           <p className="inventory-results__empty" role="status">
             {hasActiveFilters(search)

@@ -9,6 +9,9 @@ import {
   type VehicleListResponse,
   type VehicleView,
 } from '../../api';
+import { isUnexpectedClientError } from '../errors/business-errors';
+import { useAppEnvironment } from '../observability/environment';
+import { inventorySummaryQueryKey, vehicleListQueryKeyPrefix } from '../inventory/queries';
 
 /**
  * System Design 6.1: the detail vehicle and its action history are server
@@ -21,7 +24,7 @@ export const vehicleDetailQueryKey = (vehicleId: string) =>
 export const vehicleActionsQueryKey = (vehicleId: string) =>
   ['inventory', 'vehicle-actions', vehicleId] as const;
 
-export const vehicleListQueryKeyPrefix = ['inventory', 'vehicles'] as const;
+export { vehicleListQueryKeyPrefix };
 
 /** System Design 5.1: GET /vehicles/:vehicleId backs the detail surface. */
 export function useVehicleDetail(vehicleId: string) {
@@ -90,6 +93,7 @@ interface CreateActionContext {
  */
 export function useCreateVehicleAction(vehicleId: string) {
   const queryClient = useQueryClient();
+  const { instrumentation } = useAppEnvironment();
 
   return useMutation<CreateActionResult, Error, CreateActionDraft, CreateActionContext>({
     mutationFn: async (draft) => ({
@@ -122,7 +126,7 @@ export function useCreateVehicleAction(vehicleId: string) {
 
       return { previousDetail, previousLists };
     },
-    onError: (_error, _draft, context) => {
+    onError: (error, _draft, context) => {
       if (context?.previousDetail !== undefined) {
         queryClient.setQueryData(vehicleDetailQueryKey(vehicleId), context.previousDetail);
       }
@@ -130,6 +134,16 @@ export function useCreateVehicleAction(vehicleId: string) {
         if (data !== undefined) {
           queryClient.setQueryData(key, data);
         }
+      }
+
+      // System Design 8.1 / 8.6: expected business rejections are contained
+      // regional outcomes, so only unexpected failures reach telemetry. The
+      // report carries stable contract fields, never the draft or its note.
+      if (isUnexpectedClientError(error)) {
+        instrumentation.reportClientError(error, {
+          source: 'mutation',
+          endpoint: `/vehicles/${vehicleId}/actions`,
+        });
       }
     },
     onSuccess: ({ created }) => {
@@ -143,6 +157,9 @@ export function useCreateVehicleAction(vehicleId: string) {
       );
       void queryClient.invalidateQueries({ queryKey: vehicleListQueryKeyPrefix });
       void queryClient.invalidateQueries({ queryKey: vehicleActionsQueryKey(vehicleId) });
+      // ACT-010: the inventory summary (aging-with-action) is a server-state
+      // view of the same mutation, so it must re-read through TanStack Query.
+      void queryClient.invalidateQueries({ queryKey: inventorySummaryQueryKey });
     },
   });
 }

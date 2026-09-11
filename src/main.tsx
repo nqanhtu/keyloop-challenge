@@ -1,6 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app/App';
+import {
+  defaultInstrumentation,
+  installGlobalClientErrorReporting,
+  observeWebVitals,
+} from './features/observability/instrumentation';
+
+// System Design 8.1 / 8.2: install the client instrumentation boundary once at
+// startup. The default sink is a no-op until a real telemetry sink is injected.
+installGlobalClientErrorReporting(defaultInstrumentation);
+observeWebVitals((metric) => defaultInstrumentation.reportWebVitals(metric));
 
 async function prepareApp() {
   if (import.meta.env.DEV) {

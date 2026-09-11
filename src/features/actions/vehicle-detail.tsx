@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import type { VehicleActionSummary, VehicleView } from '../../api/types';
+import { clientErrorMessage } from '../errors/business-errors';
 import { AgingIndicator } from '../inventory/components/aging-indicator';
+import { VehicleDetailSkeleton } from '../inventory/components/loading-skeleton';
+import { RegionalError } from '../inventory/components/regional-error';
 import type { ViewportTier } from '../inventory/use-viewport-tier';
 import { ActionHistory } from './action-history';
 import { CreateActionForm } from './action-form';
@@ -63,10 +66,16 @@ export function VehicleDetail({ vehicleId, tier, onClose }: VehicleDetailProps) 
 
       {vehicle ? (
         <VehicleSummary vehicle={vehicle} />
+      ) : detailQuery.isError ? (
+        <section className="vehicle-detail__section" aria-label="Vehicle summary">
+          <RegionalError
+            region="vehicle summary"
+            message={clientErrorMessage(detailQuery.error, 'Unable to load this vehicle.')}
+            onRetry={() => void detailQuery.refetch()}
+          />
+        </section>
       ) : (
-        <p className="vehicle-detail__loading" role="status">
-          Loading vehicle detail…
-        </p>
+        <VehicleDetailSkeleton />
       )}
 
       <CurrentAction action={vehicle?.currentAction ?? null} />
