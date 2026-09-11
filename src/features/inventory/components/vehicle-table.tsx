@@ -43,10 +43,23 @@ function currentActionCell(
   onSelectVehicle: (vehicleId: string, trigger: HTMLElement | null) => void,
 ) {
   return (
-    <>
-      <span className="vehicle-table__current-action">{currentActionLabel(vehicle)}</span>
+    <div className="vehicle-table__current-action-cell">
+      {/*
+       * RP-9 (U04 F-07): the no-action state gets a neutral dashed pill so it
+       * is scannable at a glance, while an existing action keeps a readable
+       * neutral pill. The distinction is border style plus text, never colour.
+       */}
+      <span
+        className={
+          vehicle.currentAction
+            ? 'ui-status-pill vehicle-table__current-action'
+            : 'ui-status-pill ui-status-pill--empty vehicle-table__current-action'
+        }
+      >
+        {currentActionLabel(vehicle)}
+      </span>
       {selectVehicleControl(vehicle, onSelectVehicle)}
-    </>
+    </div>
   );
 }
 

@@ -30,7 +30,12 @@ export function VehicleCards({ vehicles, onSelectVehicle }: VehicleCardsProps) {
                 <dd>{vehicle.inventoryAgeDays} days</dd>
               </div>
               <div className="vehicle-card__detail">
-                <dt>Aging</dt>
+                {/*
+                 * RP-8 (U04 F-06): label the value for assistive tech without
+                 * printing "AGING" twice beside the indicator. The visible
+                 * statement is the dot plus the readable AGING text.
+                 */}
+                <dt className="ui-sr-only">Aging</dt>
                 <dd>
                   <AgingIndicator isAging={vehicle.isAging} />
                 </dd>
@@ -42,7 +47,21 @@ export function VehicleCards({ vehicles, onSelectVehicle }: VehicleCardsProps) {
               <div className="vehicle-card__detail">
                 <dt>Current action</dt>
                 <dd>
-                  {vehicle.currentAction ? vehicle.currentAction.status.label : 'No current action'}
+                  {/*
+                   * RP-9 (U04 F-07): a neutral, non-colour-only pill so a card
+                   * with no current action is scannable at a glance.
+                   */}
+                  <span
+                    className={
+                      vehicle.currentAction
+                        ? 'ui-status-pill'
+                        : 'ui-status-pill ui-status-pill--empty'
+                    }
+                  >
+                    {vehicle.currentAction
+                      ? vehicle.currentAction.status.label
+                      : 'No current action'}
+                  </span>
                 </dd>
               </div>
             </dl>

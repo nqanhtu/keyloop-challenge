@@ -72,7 +72,13 @@
     --ui-color-slate-200: #d9e1ec;
     --ui-color-slate-300: #bcc9da;
     --ui-color-slate-400: #8593a8;
-    --ui-color-slate-500: #6b7a90;
+    /* RP-2 (U05 F2): the muted text token is 12-13px everywhere it is used, so
+     * it must clear WCAG AA 4.5:1 on every surface it lands on. #6b7a90
+     * measured 4.36:1 on white and 3.88:1 on the table-header surface; this
+     * darker slate clears 4.5:1 on white (5.44), the muted table header
+     * (4.84) and the canvas (5.16) while staying lighter than
+     * --ui-text-secondary (#475569) so the hierarchy is preserved. */
+    --ui-color-slate-500: #5b6b80;
     --ui-color-slate-600: #46566c;
     --ui-color-slate-800: #1c2b3f;
     --ui-color-slate-900: #0d1a2b;

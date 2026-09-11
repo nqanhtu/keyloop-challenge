@@ -134,6 +134,20 @@
     color: var(--ui-success-text);
   }
 
+  /*
+   * RP-9 (U04 F-07): the neutral "no current action" state. It stays a readable
+   * text pill but drops to a dashed, transparent, muted treatment so a row or
+   * card with no manager action is scannable without reading every line — the
+   * distinction is border style and text, never colour alone.
+   */
+  .ui-status-pill--empty {
+    border-style: dashed;
+    border-color: var(--ui-border);
+    background-color: transparent;
+    color: var(--ui-text-muted);
+    font-weight: var(--ui-weight-medium);
+  }
+
   /* --- Micro label (uppercase, tracked) -------------------------------- */
   .ui-vlabel {
     margin: 0;

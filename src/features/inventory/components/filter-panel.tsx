@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Button } from '../../../app/ui';
+import { Button, trapTabKey } from '../../../app/ui';
 import { FilterControls, type FilterControlsProps } from './filter-controls';
 
 /** Desktop: common filters are inline (System Design 6.4). */
@@ -17,6 +17,12 @@ export function InlineFilterBar(props: FilterControlsProps) {
 
 export interface FilterSheetProps extends FilterControlsProps {
   onClose: () => void;
+  /**
+   * The control that opened the sheet. Captured by the dashboard at click time
+   * so focus return does not depend on `document.activeElement`, which the
+   * modal's inert background clears as soon as the sheet renders.
+   */
+  returnFocusTo?: HTMLElement | null;
 }
 
 /**
@@ -24,20 +30,16 @@ export interface FilterSheetProps extends FilterControlsProps {
  * it on open, is trapped while it is open, Escape closes it, and focus returns
  * to the control that opened it (the `Filters` trigger).
  */
-const FOCUSABLE_SELECTOR = [
-  'a[href]',
-  'button:not([disabled])',
-  'input:not([disabled])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
-
 /** Tablet and mobile: the filter set moves into an adaptive sheet. */
-export function FilterSheet({ onClose, ...controls }: FilterSheetProps) {
+export function FilterSheet({ onClose, returnFocusTo, ...controls }: FilterSheetProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(returnFocusTo ?? null);
+
+  useEffect(() => {
+    returnFocusRef.current = returnFocusTo ?? null;
+  }, [returnFocusTo]);
 
   // Focus in on open; focus out (back to the trigger) on close.
   useEffect(() => {
@@ -46,7 +48,7 @@ export function FilterSheet({ onClose, ...controls }: FilterSheetProps) {
     closeButtonRef.current?.focus();
 
     return () => {
-      openerRef.current?.focus();
+      (returnFocusRef.current ?? openerRef.current)?.focus();
     };
   }, []);
 
@@ -67,31 +69,7 @@ export function FilterSheet({ onClose, ...controls }: FilterSheetProps) {
         return;
       }
 
-      const focusable = Array.from(
-        root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      ).filter((element) => !element.hasAttribute('disabled'));
-      if (focusable.length === 0) {
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-
-      if (!root.contains(active)) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus();
-        return;
-      }
-      if (event.shiftKey && active === first) {
-        event.preventDefault();
-        last.focus();
-        return;
-      }
-      if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      trapTabKey(root, event);
     };
 
     document.addEventListener('keydown', handleKeyDown);

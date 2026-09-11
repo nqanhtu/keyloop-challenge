@@ -104,3 +104,46 @@ describe('U03 — Base + shared primitives (UI §17.5, §19, §20)', () => {
     );
   });
 });
+
+/** Resolves a `--token: var(--other)` chain down to its literal value. */
+function tokenValue(css: string, name: string): string {
+  const match = new RegExp(`${name}\\s*:\\s*([^;]+);`).exec(css);
+  if (!match) {
+    throw new Error(`${name} must be declared in tokens.css`);
+  }
+  const value = match[1].trim();
+  const alias = /^var\(\s*(--[a-z0-9-]+)\s*\)$/.exec(value);
+  return alias ? tokenValue(css, alias[1]) : value;
+}
+
+function relativeLuminance(hex: string): number {
+  const digits = hex.replace('#', '');
+  const channel = (offset: number) => {
+    const value = parseInt(digits.slice(offset, offset + 2), 16) / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+}
+
+function contrastRatio(a: string, b: string): number {
+  const [high, low] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
+  return (high + 0.05) / (low + 0.05);
+}
+
+describe('U06 — Muted text contrast (RP-2, U05 F2, WCAG AA 1.4.3)', () => {
+  it('keeps the muted text token at >= 4.5:1 on every surface it lands on', () => {
+    const muted = tokenValue(tokens, '--ui-text-muted');
+    // The muted token is 12-13px everywhere, so it is never "large text": all
+    // three surfaces must clear the 4.5:1 normal-text threshold.
+    for (const surface of ['--ui-surface', '--ui-surface-muted', '--ui-canvas']) {
+      const background = tokenValue(tokens, surface);
+      expect(
+        contrastRatio(muted, background),
+        `${muted} on ${surface} (${background})`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+
+    // The muted token must still read as secondary to the primary text token.
+    expect(contrastRatio(muted, tokenValue(tokens, '--ui-text-primary'))).toBeGreaterThan(1);
+  });
+});

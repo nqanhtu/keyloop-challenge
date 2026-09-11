@@ -179,3 +179,56 @@ test('closing a detail opened without a click keeps focus off the page body', as
   expect(await page.evaluate(() => document.activeElement?.tagName ?? 'NONE')).not.toBe('BODY');
   await expect(detailsButton(page, AGING_VEHICLE)).toBeFocused();
 });
+
+/**
+ * U06 RP-1 (UI §17.8, §18, §13.4): while a modal surface is open, Tab and
+ * Shift+Tab cycle inside it, the background subtree is inert, and closing still
+ * restores focus to the trigger. This is additive to the existing focus
+ * assertions above, which are unchanged.
+ */
+test('modal surfaces contain focus and make the background subtree inert', async ({ page }) => {
+  const tier = await openDashboard(page);
+
+  const isInert = () =>
+    page
+      .locator('.inventory-dashboard__page')
+      .evaluate((element) => element.hasAttribute('inert'));
+  const activeInsideDialog = () =>
+    page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]')));
+
+  // Detail surface: aria-modal="true" with a full-viewport scrim.
+  await gotoInventory(page, `?vehicleId=${AGING_VEHICLE.vehicleId}`);
+  const detail = vehicleDetail(page);
+  await expect(detail).toBeVisible({ timeout: APP_READY_TIMEOUT_MS });
+  expect(await isInert()).toBe(true);
+
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press('Tab');
+    expect(await activeInsideDialog()).toBe(true);
+  }
+  for (let index = 0; index < 6; index += 1) {
+    await page.keyboard.press('Shift+Tab');
+    expect(await activeInsideDialog()).toBe(true);
+  }
+
+  await page.keyboard.press('Escape');
+  await expect(detail).toBeHidden();
+  expect(await isInert()).toBe(false);
+
+  if (tier === 'desktop') {
+    return;
+  }
+
+  // Filter sheet: modal at the tablet and mobile tiers.
+  const sheet = await openFilterSheet(page);
+  expect(await isInert()).toBe(true);
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press('Tab');
+    expect(await activeInsideDialog()).toBe(true);
+  }
+
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+  expect(await isInert()).toBe(false);
+  await expect(page.getByRole('button', { name: 'Filters', exact: true })).toBeFocused();
+});

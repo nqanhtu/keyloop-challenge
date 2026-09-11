@@ -47,6 +47,11 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
   const { now } = useAppEnvironment();
   const [isFilterSheetOpen, setFilterSheetOpen] = useState(false);
   /**
+   * RP-1: the sheet's background is inert while it is open, so the trigger is
+   * captured at click time and handed to the sheet for focus return.
+   */
+  const [filterSheetOpener, setFilterSheetOpener] = useState<HTMLElement | null>(null);
+  /**
    * System Design 6.10: remember which control opened the detail so focus can
    * return to it. The list re-renders while the detail is open, so the stable
    * accessible name is captured in the click handler rather than the DOM node
@@ -99,158 +104,179 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
 
   const chips = buildFilterChips(search, statuses);
 
-  return (
-    <div className="inventory-dashboard">
-      <header className="inventory-dashboard__header">
-        <div className="inventory-dashboard__identity">
-          {/* System Design 6.10: focus fallback when the detail was opened
-           * without a click, so closing it never drops focus on <body>. */}
-          <h1 tabIndex={-1} data-focus-fallback="page-heading">
-            Keyloop Inventory Command Center
-          </h1>
-          <p className="inventory-dashboard__subtitle">
-            Discover aging inventory and the actions already taken on it.
-          </p>
-        </div>
-        <FreshnessNotice freshness={freshness} isLoading={summaryQuery.isPending} />
-      </header>
+  /**
+   * RP-1 (U05 F1/F5): while a modal surface is open the rest of the dashboard
+   * is inert, so background controls are neither focusable nor exposed to
+   * assistive technology. Each modal also traps Tab/Shift+Tab inside itself.
+   */
+  const modalOpen = isFilterSheetOpen || Boolean(search.vehicleId);
 
-      {summaryQuery.isPending ? (
-        <KpiCardsSkeleton />
-      ) : summaryQuery.isError ? (
-        <section className="kpi-section" aria-label="Inventory summary">
-          <RegionalError
-            region="inventory summary"
-            message={clientErrorMessage(summaryQuery.error, 'Unable to load the inventory summary.')}
-            onRetry={() => void summaryQuery.refetch()}
+  return (
+    /* RP-7 (U05 F4): the /inventory route renders a single main landmark. */
+    <main className="inventory-dashboard">
+      <div className="inventory-dashboard__page" inert={modalOpen ? true : undefined}>
+        <header className="inventory-dashboard__header">
+          <div className="inventory-dashboard__identity">
+            {/* System Design 6.10: focus fallback when the detail was opened
+             * without a click, so closing it never drops focus on <body>. */}
+            <h1 tabIndex={-1} data-focus-fallback="page-heading">
+              Keyloop Inventory Command Center
+            </h1>
+            <p className="inventory-dashboard__subtitle">
+              Discover aging inventory and the actions already taken on it.
+            </p>
+          </div>
+          <FreshnessNotice freshness={freshness} isLoading={summaryQuery.isPending} />
+        </header>
+
+        {summaryQuery.isPending ? (
+          <KpiCardsSkeleton />
+        ) : summaryQuery.isError ? (
+          <section className="kpi-section" aria-label="Inventory summary">
+            <RegionalError
+              region="inventory summary"
+              message={clientErrorMessage(
+                summaryQuery.error,
+                'Unable to load the inventory summary.',
+              )}
+              onRetry={() => void summaryQuery.refetch()}
+            />
+          </section>
+        ) : (
+          <KpiCards summary={summaryQuery.data} />
+        )}
+
+        <section className="inventory-discovery" aria-label="Inventory discovery">
+          <div className="inventory-toolbar">
+            <div className="toolbar-field">
+              <label htmlFor="inventory-sort">Sort</label>
+              <select
+                id="inventory-sort"
+                value={sort}
+                onChange={(event) =>
+                  onApplySearch(applySortChange(search, event.target.value as VehicleSortOption))
+                }
+              >
+                {INVENTORY_SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="toolbar-field toolbar-field--toggle">
+              <input
+                id="inventory-aging-only"
+                type="checkbox"
+                checked={Boolean(search.agingOnly)}
+                onChange={(event) =>
+                  onApplySearch(
+                    applyFilterChange(search, {
+                      agingOnly: event.target.checked ? true : undefined,
+                    }),
+                  )
+                }
+              />
+              <label htmlFor="inventory-aging-only">Aging only</label>
+            </div>
+
+            {tier !== 'desktop' && (
+              <Button
+                aria-expanded={isFilterSheetOpen}
+                onClick={(event) => {
+                  setFilterSheetOpener(event.currentTarget);
+                  setFilterSheetOpen(true);
+                }}
+              >
+                Filters
+              </Button>
+            )}
+          </div>
+
+          {tier === 'desktop' && <InlineFilterBar {...filterControlsProps} />}
+
+          <ActiveFilterChips
+            chips={chips}
+            onRemove={(chip: FilterChip) => onApplySearch(applyFilterChange(search, chip.clear))}
+            onClearAll={() => onApplySearch(clearAllFilters(search))}
           />
         </section>
-      ) : (
-        <KpiCards summary={summaryQuery.data} />
-      )}
 
-      <section className="inventory-discovery" aria-label="Inventory discovery">
-        <div className="inventory-toolbar">
-          <div className="toolbar-field">
-            <label htmlFor="inventory-sort">Sort</label>
-            <select
-              id="inventory-sort"
-              value={sort}
-              onChange={(event) =>
-                onApplySearch(applySortChange(search, event.target.value as VehicleSortOption))
-              }
-            >
-              {INVENTORY_SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+        <section
+          className="inventory-results"
+          aria-label="Inventory results"
+          aria-busy={listQuery.isFetching}
+          tabIndex={-1}
+          data-focus-fallback="inventory-results"
+        >
+          <div className="inventory-results__header">
+            <h2 className="inventory-results__title">Inventory</h2>
+            {listQuery.isSuccess && (
+              <p className="inventory-results__count" data-testid="inventory-results-count">
+                <VisuallyHidden>Inventory count: </VisuallyHidden>
+                {vehicles.length} of {total} vehicles
+              </p>
+            )}
           </div>
 
-          <div className="toolbar-field toolbar-field--toggle">
-            <input
-              id="inventory-aging-only"
-              type="checkbox"
-              checked={Boolean(search.agingOnly)}
-              onChange={(event) =>
-                onApplySearch(
-                  applyFilterChange(search, {
-                    agingOnly: event.target.checked ? true : undefined,
-                  }),
-                )
-              }
+          {listQuery.isPending && <InventoryListSkeleton />}
+
+          {listQuery.isError && (
+            <RegionalError
+              region="inventory results"
+              message={clientErrorMessage(listQuery.error, 'Unable to load inventory.')}
+              onRetry={() => void listQuery.refetch()}
             />
-            <label htmlFor="inventory-aging-only">Aging only</label>
-          </div>
-
-          {tier !== 'desktop' && (
-            <Button
-              aria-expanded={isFilterSheetOpen}
-              onClick={() => setFilterSheetOpen(true)}
-            >
-              Filters
-            </Button>
           )}
-        </div>
 
-        {tier === 'desktop' && <InlineFilterBar {...filterControlsProps} />}
-
-        <ActiveFilterChips
-          chips={chips}
-          onRemove={(chip: FilterChip) => onApplySearch(applyFilterChange(search, chip.clear))}
-          onClearAll={() => onApplySearch(clearAllFilters(search))}
-        />
-      </section>
-
-      {isFilterSheetOpen && (
-        <FilterSheet {...filterControlsProps} onClose={() => setFilterSheetOpen(false)} />
-      )}
-
-      <section
-        className="inventory-results"
-        aria-label="Inventory results"
-        aria-busy={listQuery.isFetching}
-        tabIndex={-1}
-        data-focus-fallback="inventory-results"
-      >
-        <div className="inventory-results__header">
-          <h2 className="inventory-results__title">Inventory</h2>
-          {listQuery.isSuccess && (
-            <p className="inventory-results__count" data-testid="inventory-results-count">
-              <VisuallyHidden>Inventory count: </VisuallyHidden>
-              {vehicles.length} of {total} vehicles
+          {listQuery.isSuccess && vehicles.length === 0 && (
+            <p className="inventory-results__empty" role="status">
+              {hasActiveFilters(search)
+                ? 'No vehicles match the current filters.'
+                : 'No vehicles in inventory.'}
             </p>
           )}
+
+          {listQuery.isSuccess && vehicles.length > 0 && tier === 'mobile' && (
+            <VehicleCards vehicles={vehicles} onSelectVehicle={selectVehicle} />
+          )}
+
+          {listQuery.isSuccess && vehicles.length > 0 && tier !== 'mobile' && (
+            <VehicleTable
+              vehicles={vehicles}
+              rowCount={total}
+              page={page}
+              pageSize={INVENTORY_PAGE_SIZE}
+              density={tier === 'tablet' ? 'compact' : 'full'}
+              onSelectVehicle={selectVehicle}
+            />
+          )}
+
+          {listQuery.isSuccess && (
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              total={total}
+              onPageChange={(nextPage) => onApplySearch(applyPageChange(search, nextPage))}
+            />
+          )}
+        </section>
+
+        <div className="inventory-dashboard__aging-legend">
+          <AgingIndicator isAging />
+          <span>Aging inventory is 91 or more days in stock.</span>
         </div>
-
-        {listQuery.isPending && <InventoryListSkeleton />}
-
-        {listQuery.isError && (
-          <RegionalError
-            region="inventory results"
-            message={clientErrorMessage(listQuery.error, 'Unable to load inventory.')}
-            onRetry={() => void listQuery.refetch()}
-          />
-        )}
-
-        {listQuery.isSuccess && vehicles.length === 0 && (
-          <p className="inventory-results__empty" role="status">
-            {hasActiveFilters(search)
-              ? 'No vehicles match the current filters.'
-              : 'No vehicles in inventory.'}
-          </p>
-        )}
-
-        {listQuery.isSuccess && vehicles.length > 0 && tier === 'mobile' && (
-          <VehicleCards vehicles={vehicles} onSelectVehicle={selectVehicle} />
-        )}
-
-        {listQuery.isSuccess && vehicles.length > 0 && tier !== 'mobile' && (
-          <VehicleTable
-            vehicles={vehicles}
-            rowCount={total}
-            page={page}
-            pageSize={INVENTORY_PAGE_SIZE}
-            density={tier === 'tablet' ? 'compact' : 'full'}
-            onSelectVehicle={selectVehicle}
-          />
-        )}
-
-        {listQuery.isSuccess && (
-          <Pagination
-            page={page}
-            pageCount={pageCount}
-            total={total}
-            onPageChange={(nextPage) => onApplySearch(applyPageChange(search, nextPage))}
-          />
-        )}
-      </section>
-
-      <div className="inventory-dashboard__aging-legend">
-        <AgingIndicator isAging />
-        <span>Aging inventory is 91 or more days in stock.</span>
       </div>
+
+      {/* Modal surfaces stay interactive siblings of the inert page subtree. */}
+      {isFilterSheetOpen && (
+        <FilterSheet
+          {...filterControlsProps}
+          returnFocusTo={filterSheetOpener}
+          onClose={() => setFilterSheetOpen(false)}
+        />
+      )}
 
       {search.vehicleId && (
         <VehicleDetail
@@ -262,6 +288,6 @@ export function InventoryDashboard({ search, onApplySearch }: InventoryDashboard
           onClose={() => onApplySearch(closeVehicleDetail(search))}
         />
       )}
-    </div>
+    </main>
   );
 }
