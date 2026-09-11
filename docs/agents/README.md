@@ -4,7 +4,11 @@ This directory defines the project-specific operating contract for autonomous im
 
 ## Authority
 
-`docs/system-design/system-design-v1.md` is the architecture and product-design authority for this challenge unless a later committed, explicitly approved decision supersedes it.
+`docs/system-design/system-design-v1.md` is the architecture and product-semantics authority for this challenge unless a later committed, explicitly approved decision supersedes it.
+
+`docs/ui-system-design/ui-system-design-v1.md` is the UI information-architecture, visual-system, responsive-presentation, interaction, and accessibility authority under Decision 0003.
+
+When they overlap, System Design owns business/API/data semantics and implementation scope; UI System Design owns presentation and interaction unless a later accepted decision says otherwise.
 
 The implementation scope is intentionally narrower than the system-design scope:
 
@@ -93,7 +97,7 @@ Codex decides durable state but does not write it. A dedicated DeepSeek Workflow
 Canonical paths:
 
 ```text
-docs/plans/active/implementation.md
+docs/plans/active/<current-plan>.md
 docs/agents/tasks/<TASK-ID>.md
 docs/agents/evidence/<TASK-ID>.md
 docs/agents/evidence/release-compliance.md
@@ -103,6 +107,12 @@ docs/agents/rules/*.md
 ```
 
 A fresh Codex Lead must be able to resume from committed repository state plus current Git/Herdr state without requiring a previous chat transcript.
+
+For the current UI redesign, the active plan is:
+
+```text
+docs/plans/active/ui-redesign.md
+```
 
 Use a single active implementation plan for cross-session progress. Do not create parallel task databases unless an external tracker is explicitly adopted.
 
@@ -153,14 +163,31 @@ Project authority overrides generic skill assumptions when they conflict.
 - **Code review:** Task Contract `base_commit` is the fixed point; Task Contract + `design_refs` are the spec. See [issue-tracker.md](issue-tracker.md); GitHub Issues are optional and are not workflow state.
 - **Harness learning:** project learning may evolve project-owned `docs/agents/**` rules/templates/evidence and project-native checks through an authorized DeepSeek writer role. Harness core itself is not self-modified; `$improve-harness` still requires explicit user authorization.
 
-## Entry Skill
+## Entry Skills
 
-For end-to-end autonomous implementation, Codex Lead uses the project-local `$deliver-system-design` skill in `.agents/skills/deliver-system-design/SKILL.md`.
+For end-to-end System Design implementation, Lead uses:
 
-That skill is the control loop. The generic Herdr skill only supplies Herdr mechanics.
+```text
+$deliver-system-design
+.agents/skills/deliver-system-design/SKILL.md
+```
+
+For the autonomous UI redesign, Lead uses:
+
+```text
+$deliver-ui-redesign
+.agents/skills/deliver-ui-redesign/SKILL.md
+```
+
+The UI workflow installs its approved specialized project-local skills from `UI_SKILL_BOOTSTRAP.md`.
+
+The generic Herdr skill supplies Herdr mechanics; `PANE_LIFECYCLE.md` defines mandatory cleanup of completed child panes.
 
 ## Supporting Documents
 
+- [UI_SKILL_BOOTSTRAP.md](UI_SKILL_BOOTSTRAP.md) — exact project-local skills and install procedure for UI redesign.
+- [PANE_LIFECYCLE.md](PANE_LIFECYCLE.md) — automatic child-agent/pane cleanup policy.
+- [../ui-system-design/ui-system-design-v1.md](../ui-system-design/ui-system-design-v1.md) — approved UI design authority.
 - [ORCHESTRATION.md](ORCHESTRATION.md) — execution lifecycle, role separation, recovery, retries, and integration.
 - [RUNTIME.md](RUNTIME.md) — pinned model/effort/runtime permissions and escalation policy.
 - [BRANCHING.md](BRANCHING.md) — task base commits, worktree creation, review fixed points, and commit provenance.
