@@ -16,3 +16,6 @@ playwright-report/
 # Tooling caches & logs
 *.log
 .DS_Store
+
+# Local worktrees
+.worktrees/
