@@ -640,6 +640,9 @@ React App
 
 ## 6. Frontend Architecture
 
+> Detailed UI presentation, responsive layout, visual-system, interaction-state, and accessibility authority is maintained separately in `docs/ui-system-design/ui-system-design-v1.md` under Decision 0003. This section continues to define frontend architectural and behavioral boundaries.
+
+
 ### 6.1 State ownership
 
 | State | Tool | Examples |
