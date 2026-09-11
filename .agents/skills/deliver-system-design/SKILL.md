@@ -1,6 +1,6 @@
 ---
 name: deliver-system-design
-description: "Autonomously deliver this repository's approved System Design through Herdr. Codex remains read-only and owns architecture, planning, review, testing, diagnosis, and final compliance; Antigravity writes workflow state, implementation, repairs, and integration. Use when asked to implement or deliver the approved System Design end to end with minimal human intervention."
+description: "Autonomously deliver this repository's approved System Design through Herdr using separated DeepSeek-backed Codex CLI roles. Lead/review/test/compliance stay read-only; Builder/Repairer/Integrator/Scribe perform scoped writes. Use when asked to implement or deliver the approved System Design end to end with minimal human intervention."
 ---
 
 # Deliver System Design
@@ -11,18 +11,22 @@ The goal is not to make agents busy. The goal is to produce a release candidate 
 
 ## Non-Negotiable Role Boundary
 
-Codex is repository-mutation read-only for this workflow.
+The active runtime is DeepSeek-only under `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
 
-Codex may read, reason, decide, generate exact content, orchestrate Herdr, review, test, diagnose, and issue compliance verdicts. Codex must not edit source or durable workflow files itself.
+All roles are Herdr-managed Codex CLI sessions backed by `deepseek-flash/high`, but role permissions remain separated:
 
-All repository writes are delegated to Antigravity roles:
+- `Lead` — read-only decisions/orchestration;
+- `Workflow Scribe` — exact Lead-approved workflow artifacts only;
+- `Builder` — bounded implementation/tests in the assigned task worktree;
+- `Repairer` — bounded fixes from findings;
+- `Reviewer` — fresh read-only review session;
+- `Tester` — fresh read-only verification session;
+- `Integrator` — reviewed merge/integration work only;
+- `Compliance` — fresh read-only final auditor.
 
-- `Workflow Scribe` — exact Codex-approved workflow artifacts only;
-- `Builder` — bounded implementation/tests;
-- `Repairer` — bounded fixes from Codex findings;
-- `Integrator` — reviewed merge/integration work.
+A writer session must not review, test-approve, or perform Compliance on its own work. A Scribe records Lead decisions; it does not make them.
 
-A Scribe records Codex decisions; it does not make them.
+Runtime `danger-full-access` exists for Herdr IPC and writer execution. It does not override the role-specific mutation boundary.
 
 ## Preconditions
 
@@ -69,7 +73,7 @@ If no active implementation plan exists, continue to bootstrap.
 
 ## Phase 1 — Compile the Design
 
-Read the complete System Design once as Codex Lead and compile a concise delivery model.
+Read the complete System Design once as DeepSeek Lead and compile a concise delivery model.
 
 Classify design statements into:
 
@@ -137,7 +141,7 @@ Change the graph when evidence shows different dependencies. Do not parallelize 
 
 ## Phase 3 — Persist Bootstrap State Through Workflow Scribe
 
-Codex must not write the plan itself.
+DeepSeek Lead must not write the plan itself; delegate the exact content to a Workflow Scribe session.
 
 Generate the exact initial content for:
 
@@ -159,7 +163,7 @@ release-gate state
 unresolved risks/decisions
 ```
 
-Start or reuse one Antigravity Workflow Scribe through Herdr and give it the exact destination and Codex-approved content. The Scribe may create needed project-owned directories/files but must not modify source implementation, System Design, or Harness core.
+Start or reuse one DeepSeek Workflow Scribe through Herdr and give it the exact destination and Codex-approved content. The Scribe may create needed project-owned directories/files but must not modify source implementation, System Design, or Harness core.
 
 Verify the resulting Git diff/commit before trusting the persisted state.
 
@@ -206,7 +210,7 @@ Persist the contract through Workflow Scribe at:
 docs/agents/tasks/<TASK-ID>.md
 ```
 
-Then create/reuse the task worktree from the recorded `base_commit` and start an Antigravity Builder with Herdr.
+Then create/reuse the task worktree from the recorded `base_commit` and start an DeepSeek Builder with Herdr.
 
 The Builder receives only:
 
@@ -219,11 +223,11 @@ Do not send the entire prior Codex/AGY transcript or all historical incidents.
 
 ## Phase 5 — Builder Result and Evidence Capsule
 
-Antigravity implements using the declared task seams and returns a concise evidence capsule.
+DeepSeek Builder implements using the declared task seams and returns a concise evidence capsule.
 
 Do not accept `done`, prose confidence, or a green-looking terminal as proof.
 
-Codex Lead checks:
+DeepSeek Lead checks:
 
 ```text
 commit exists
@@ -243,7 +247,7 @@ Long logs remain process output unless a failure requires preserving a targeted 
 
 ## Phase 6 — Fresh Codex Review
 
-Start a fresh Codex Reviewer session through Herdr.
+Start a fresh DeepSeek Reviewer session through Herdr.
 
 Provide only:
 
@@ -265,13 +269,13 @@ For the installed `code-review` skill:
 
 Reviewer is read-only and returns structured findings using the template in `TASK_CONTRACT_TEMPLATE.md`.
 
-A review failure never authorizes Codex to patch source.
+A review failure never authorizes the Reviewer session to patch source; route the finding to a Builder/Repairer.
 
 ## Phase 7 — Testing
 
-After review passes, use a fresh/read-only Codex Tester or the Lead acting strictly as tester when a separate fresh context adds no material value.
+After review passes, use a fresh/read-only DeepSeek Tester or the Lead acting strictly as tester when a separate fresh context adds no material value.
 
-Run/orchestrate commands in ordinary Herdr panes. Test processes may create their normal build/cache/report outputs; Codex itself still does not edit source.
+Run/orchestrate commands in ordinary Herdr panes. Test processes may create their normal build/cache/report outputs; Reviewer/Tester/Lead sessions still do not edit source.
 
 Verification depth follows risk in `QUALITY_AND_LEARNING.md`.
 
@@ -290,7 +294,7 @@ architecture compliance checks
 
 Never repeatedly retry a failing test until green and call that success. Suspected flakiness enters diagnosis.
 
-When source structure is stable enough to encode a project invariant mechanically, prefer a repository-native check/test over another textual reminder. Codex may use the `encode-invariant` guidance to design the proof, but an Antigravity writer performs the repository mutation.
+When source structure is stable enough to encode a project invariant mechanically, prefer a repository-native check/test over another textual reminder. Codex may use the `encode-invariant` guidance to design the proof, but an DeepSeek writer role performs the repository mutation.
 
 ## Phase 8 — Failure Diagnosis and Repair
 
@@ -309,10 +313,10 @@ Route:
 
 ```text
 first local implementation defect
-  -> same AGY Builder/Repairer when context remains trustworthy
+  -> same DeepSeek Builder/Repairer when context remains trustworthy
 
 repeated or architecture-boundary violation
-  -> fresh AGY Repairer
+  -> fresh DeepSeek Repairer
 
 workflow/systemic failure
   -> repair current work
@@ -369,9 +373,9 @@ Project learning must never autonomously modify the Harness-managed block, `.har
 
 Only reviewed and sufficiently tested work may be integrated.
 
-Use an Antigravity Integrator for repository writes/merge conflict resolution. Scribe and Integrator writes to the coordination branch are serialized.
+Use an DeepSeek Integrator for repository writes/merge conflict resolution. Scribe and Integrator writes to the coordination branch are serialized.
 
-If a conflict is purely mechanical, Integrator resolves and reports evidence. If resolution would choose product semantics, API behavior, ownership, or architecture, stop that integration attempt and escalate to Codex Lead.
+If a conflict is purely mechanical, Integrator resolves and reports evidence. If resolution would choose product semantics, API behavior, ownership, or architecture, stop that integration attempt and escalate to DeepSeek Lead.
 
 After each meaningful integration, run affected validation and update the implementation plan through Workflow Scribe.
 
@@ -405,9 +409,9 @@ A required flaky/unreliable proof blocks release until resolved or explicitly re
 
 Do not advance `release_candidate_commit` after clean verification without rerunning the affected release gates.
 
-## Phase 12 — Final Codex Compliance
+## Phase 12 — Final DeepSeek Compliance
 
-Start a fresh Codex Compliance session pinned to `release_candidate_commit`.
+Start a fresh DeepSeek Compliance session pinned to `release_candidate_commit`.
 
 It reads:
 
@@ -433,7 +437,7 @@ Every PASS must cite executable/observable evidence.
 
 `FAIL` or `UNVERIFIED` prevents release.
 
-Only Codex Compliance may decide:
+Only DeepSeek Compliance may decide:
 
 ```text
 RELEASE: PASS
