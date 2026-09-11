@@ -160,7 +160,7 @@ When Codex is running with a read-only sandbox, durable workflow state is writte
 A Scribe task must contain the exact destination path and Codex-approved content or patch intent. The Scribe may write only project-owned workflow artifacts such as:
 
 ```text
-docs/plans/active/implementation.md
+docs/plans/active/<current-plan>.md
 docs/agents/tasks/**
 docs/agents/evidence/**
 docs/agents/learning/**
