@@ -47,21 +47,21 @@ Do not run a stronger/maximum-effort model continuously merely as a precaution.
 
 ## Temporary DeepSeek Fallback
 
-When the normal OpenAI Codex model quota is unavailable, Codex CLI may temporarily use the officially supported DeepSeek provider with **only** `deepseek-v4-flash`.
+When the normal OpenAI Codex model quota is unavailable, Codex CLI may temporarily use the officially supported DeepSeek provider with **only** `deepseek-flash`.
 
 Fallback policy:
 
 | Role | Model | Reasoning effort | Runtime sandbox | Repository behavior |
 |---|---|---|---|---|
-| Lead | `deepseek-v4-flash` | `high` | `danger-full-access` | logically read-only |
-| Reviewer | `deepseek-v4-flash` | `high` | `danger-full-access` | read-only |
-| Tester | `deepseek-v4-flash` | `high` | `danger-full-access` | read-only |
-| Root-cause diagnosis | `deepseek-v4-flash` | `high` | `danger-full-access` | read-only |
+| Lead | `deepseek-flash` | `high` | `danger-full-access` | logically read-only |
+| Reviewer | `deepseek-flash` | `high` | `danger-full-access` | read-only |
+| Tester | `deepseek-flash` | `high` | `danger-full-access` | read-only |
+| Root-cause diagnosis | `deepseek-flash` | `high` | `danger-full-access` | read-only |
 
 Rules:
 
 - This is a quota-availability fallback, not the normal runtime policy.
-- Use the official DeepSeek Codex/Responses API integration and exact model identifier `deepseek-v4-flash`.
+- Use the official DeepSeek Codex/Responses API integration and exact model identifier `deepseek-flash`.
 - Do not store a DeepSeek API key in this repository, task contracts, evidence, logs, or prompts.
 - Keep Codex internal `multi_agent` disabled; Herdr remains the only multi-agent orchestrator.
 - The broader runtime sandbox remains only for Herdr IPC. The repository role remains read-only.
