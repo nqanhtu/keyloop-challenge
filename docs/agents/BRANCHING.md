@@ -6,7 +6,7 @@ This protocol prevents workflow-record commits from contaminating implementation
 
 The branch on which the autonomous delivery run starts is the coordination branch; for this challenge it is normally `main`.
 
-Only one Antigravity writer may mutate the coordination branch at a time. Workflow Scribe and Integrator writes are serialized.
+Only one DeepSeek writer may mutate the coordination branch at a time. Workflow Scribe and Integrator writes are serialized.
 
 ## Dispatch Sequence
 
@@ -42,7 +42,7 @@ For every implementation task:
 
 7. **Integrate onto the current coordination branch**
 
-   After review and required targeted verification pass, Antigravity Integrator merges/applies the reviewed task commit onto the current coordination branch, which already contains workflow records such as `S`.
+   After review and required targeted verification pass, DeepSeek Integrator merges/applies the reviewed task commit onto the current coordination branch, which already contains workflow records such as `S`.
 
 8. **Persist post-integration state**
 
