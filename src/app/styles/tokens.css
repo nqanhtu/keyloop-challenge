@@ -1,0 +1,140 @@
+/*
+ * U03 — Semantic design tokens (UI System Design §8, §9).
+ *
+ * Layer order is declared once here so the cascade is independent of bundle
+ * order. Layers, lowest to highest priority: tokens, base, primitives,
+ * components. Feature stylesheets live in `components` so they can override a
+ * primitive without specificity wars.
+ */
+@layer tokens, base, primitives, components;
+
+@layer tokens {
+  :root {
+    /* --- Typography (UI §9) -------------------------------------------- */
+    --ui-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --ui-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+      'Liberation Mono', monospace;
+
+    /* Type scale: 12 / 13 / 14 / 16 / 20 / 26 / 32px with matched leading. */
+    --ui-text-12: 0.75rem;
+    --ui-text-13: 0.8125rem;
+    --ui-text-14: 0.875rem;
+    --ui-text-16: 1rem;
+    --ui-text-20: 1.25rem;
+    --ui-text-26: 1.625rem;
+    --ui-text-32: 2rem;
+    --ui-leading-title: 1.2;
+    --ui-leading-body: 1.45;
+    --ui-leading-numeral: 1;
+    --ui-tracking-label: 0.04em;
+    --ui-weight-regular: 400;
+    --ui-weight-medium: 500;
+    --ui-weight-semibold: 600;
+    --ui-weight-bold: 700;
+
+    /* --- Spacing rhythm (UI §4): 4 / 8 / 12 / 16 / 24 / 32 / 48 --------- */
+    --ui-space-4: 0.25rem;
+    --ui-space-8: 0.5rem;
+    --ui-space-12: 0.75rem;
+    --ui-space-16: 1rem;
+    --ui-space-24: 1.5rem;
+    --ui-space-32: 2rem;
+    --ui-space-48: 3rem;
+
+    /* --- Radius --------------------------------------------------------- */
+    --ui-radius-4: 0.25rem;
+    --ui-radius-6: 0.375rem;
+    --ui-radius-8: 0.5rem;
+    --ui-radius-10: 0.625rem;
+    --ui-radius-pill: 999px;
+
+    /* --- Motion (UI §19): functional, 120-220ms ------------------------- */
+    --ui-motion-fast: 120ms;
+    --ui-motion-base: 180ms;
+    --ui-ease: cubic-bezier(0.2, 0, 0.2, 1);
+
+    /* --- Layering ------------------------------------------------------- */
+    --ui-z-sticky: 5;
+    --ui-z-sheet-scrim: 19;
+    --ui-z-sheet: 20;
+    --ui-z-scrim: 25;
+    --ui-z-detail: 30;
+
+    /* --- Elevation reserved for drawer / sheet / menu / overlay --------- */
+    --ui-shadow-raised: 0 1px 2px rgb(13 26 43 / 6%);
+    --ui-shadow-overlay: 0 12px 40px rgb(13 26 43 / 22%);
+
+    /* --- Color primitives (kept name-based, never consumed directly) ---- */
+    --ui-color-white: #ffffff;
+    --ui-color-slate-50: #f7f9fc;
+    --ui-color-slate-100: #eef2f8;
+    --ui-color-slate-200: #d9e1ec;
+    --ui-color-slate-300: #bcc9da;
+    --ui-color-slate-400: #8593a8;
+    --ui-color-slate-500: #6b7a90;
+    --ui-color-slate-600: #46566c;
+    --ui-color-slate-800: #1c2b3f;
+    --ui-color-slate-900: #0d1a2b;
+    --ui-color-blue-600: #1d4ed8;
+    --ui-color-blue-700: #1e40af;
+    --ui-color-blue-800: #1e3a8a;
+    --ui-color-blue-500: #2563eb;
+    --ui-color-amber-100: #fff7ed;
+    --ui-color-amber-300: #fdba74;
+    --ui-color-amber-700: #92400e;
+    --ui-color-amber-500: #d97706;
+    --ui-color-green-100: #f0fdf4;
+    --ui-color-green-300: #bbf7d0;
+    --ui-color-green-700: #15803d;
+    --ui-color-red-100: #fef3f2;
+    --ui-color-red-300: #fecaca;
+    --ui-color-red-700: #b42318;
+
+    /* --- Level 1: canvas ------------------------------------------------- */
+    --ui-canvas: var(--ui-color-slate-50);
+
+    /* --- Level 2: panel (bordered surface, no elevation) ---------------- */
+    --ui-surface: var(--ui-color-white);
+    --ui-surface-muted: var(--ui-color-slate-100);
+
+    /* --- Level 3: raised / interactive (controls, hover affordance) ----- */
+    --ui-surface-raised: var(--ui-color-white);
+    --ui-border-subtle: #e7edf5;
+    --ui-border: var(--ui-color-slate-200);
+    --ui-border-strong: var(--ui-color-slate-300);
+
+    /* --- Level 4: semantic status --------------------------------------- */
+    --ui-aging-text: var(--ui-color-amber-700);
+    --ui-aging-bg: var(--ui-color-amber-100);
+    --ui-aging-border: var(--ui-color-amber-300);
+    --ui-aging-accent: var(--ui-color-amber-500);
+    --ui-success-text: var(--ui-color-green-700);
+    --ui-success-bg: var(--ui-color-green-100);
+    --ui-success-border: var(--ui-color-green-300);
+    --ui-error-text: var(--ui-color-red-700);
+    --ui-error-bg: var(--ui-color-red-100);
+    --ui-error-border: var(--ui-color-red-300);
+    --ui-neutral-text: var(--ui-color-slate-600);
+    --ui-neutral-bg: var(--ui-color-slate-100);
+    --ui-neutral-border: var(--ui-color-slate-200);
+
+    /* --- Text ----------------------------------------------------------- */
+    --ui-text-primary: var(--ui-color-slate-900);
+    --ui-text-secondary: var(--ui-color-slate-600);
+    --ui-text-muted: var(--ui-color-slate-500);
+
+    /* --- Interaction ---------------------------------------------------- */
+    --ui-interactive: var(--ui-color-blue-600);
+    --ui-interactive-hover: var(--ui-color-blue-700);
+    --ui-interactive-active: var(--ui-color-blue-800);
+    --ui-interactive-text: var(--ui-color-blue-700);
+    --ui-focus: var(--ui-color-blue-500);
+    --ui-hover-surface: #eaf0f8;
+    --ui-scrim: rgb(13 26 43 / 42%);
+
+    /* --- Skeleton ------------------------------------------------------- */
+    --ui-skeleton-base: #e4ebf4;
+    --ui-skeleton-highlight: #f1f5fb;
+  }
+}
