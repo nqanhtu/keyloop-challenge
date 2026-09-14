@@ -4,7 +4,8 @@
 > **Domain:** Supply  
 > **Design scope:** End-to-end system architecture  
 > **Implementation scope:** Frontend implemented fully; backend mocked at the HTTP boundary  
-> **Version:** 1.0-draft
+> **Status:** Final submission  
+> **Version:** 1.0
 
 ---
 
@@ -659,10 +660,12 @@ React App
 Example:
 
 ```text
-/vehicles?make=BMW&agingOnly=true&page=2
+/inventory?make=BMW&agingOnly=true&page=2
 ```
 
-Changing filters resets pagination to page 1.
+`/inventory` is the canonical dashboard route. Opening `/` redirects to
+`/inventory` while preserving incoming query state. Changing filters resets
+pagination to page 1.
 
 ### 6.2 Dashboard hierarchy
 
@@ -780,7 +783,7 @@ Manager actions persist across reloads using browser storage. This demonstrates 
 |---|---|---|
 | React | UI framework | Mature component model for interactive dashboards |
 | TypeScript | Type safety | Explicit domain/API contracts |
-| TanStack Router | Routing | Typed URL-based filter/sort/page state |
+| TanStack Router | Routing | Typed URL-based filter/sort/page/page-size state |
 | TanStack Query | Server state | Cache, refetch, mutations, optimistic updates |
 | TanStack Table | Inventory table | Headless table model suited to server-side operations |
 | MSW | Mock backend | Preserves the real HTTP boundary |
@@ -1031,9 +1034,9 @@ Append-only history enables later analysis of actions attempted, time between ac
 
 ## 11. GenAI Collaboration
 
-### 11.1 Collaboration model
+### 11.1 Design-phase collaboration
 
-GenAI was used as a design collaborator rather than an authority.
+GenAI was used as a design collaborator rather than as architecture authority.
 
 ```text
 requirement
@@ -1044,41 +1047,95 @@ trade-offs are challenged
    ↓
 assumptions become explicit
    ↓
-decision is accepted, rejected, or revised
+designer accepts, rejects, or revises the decision
    ↓
-failure cases are validated
+decision is persisted in repository documentation
 ```
 
-Final responsibility for scope, business semantics, architecture, and verification remained with the designer.
+This was especially useful for ambiguous requirements. AI helped generate
+counterarguments and failure cases, while final responsibility for product
+semantics, architecture, scope, and trade-offs remained with the designer.
 
-### 11.2 Where GenAI helped
+### 11.2 Where GenAI helped the design
 
 GenAI was used to:
 
 - explore synchronization alternatives;
 - identify hidden assumptions;
-- compare data-lifecycle models;
+- compare data-lifecycle and ownership models;
 - challenge persisted versus derived state;
 - identify failure scenarios;
 - shape API contracts;
 - explore responsive frontend patterns;
-- check whether architectural complexity was justified;
-- convert decisions into `Decision → Why → Trade-off` reasoning.
+- test whether architectural complexity was justified;
+- convert decisions into explicit `Decision → Why → Trade-off` reasoning.
 
 ### 11.3 Decisions refined through AI collaboration
 
 **Incremental synchronization → full snapshot**  
-Incremental synchronization was initially considered for efficiency, but the additional complexity around missed changes, checkpoints, drift, and reconciliation was not justified for the expected scale.
+Incremental synchronization was initially considered for efficiency, but the
+additional complexity around missed changes, checkpoints, ordering, drift, and
+reconciliation was not justified for the expected dealership-scale workload.
 
 **Current-only action → append-only history**  
-A single mutable current action satisfied the minimum requirement, but append-only history preserves business decisions at low additional cost.
+A single mutable current action satisfies the minimum UI requirement, but
+append-only history preserves business decisions and future auditability at low
+additional model complexity.
 
 **Compile-time status enum → database-driven statuses**  
-Fixed enums were replaced by database-driven reference data so business statuses can evolve independently from frontend deployment.
+Fixed enums were replaced by database-driven reference data so business
+terminology can evolve independently from frontend deployment while historical
+meaning remains stable.
 
-### 11.4 Verification approach
+**Distributed architecture → modular monolith first**  
+Microservices, distributed caching, event streaming, and dedicated search
+infrastructure were considered but rejected because no current ownership,
+scaling, latency, or deployment requirement justifies their operational cost.
 
-AI-generated proposals were checked against:
+### 11.4 Multi-agent implementation workflow
+
+After design decisions were accepted, implementation used a role-separated
+multi-agent workflow rather than one long agent session.
+
+```text
+Designer / user
+      ↓
+Lead agent
+  requirements + decisions
+      ↓
+bounded task contract
+      ↓
+Builder
+      ↓
+integration
+      ↓
+fresh Reviewer / Tester / Browser QA / Accessibility
+      ↓
+findings?
+  ├─ yes → bounded Repairer → re-verification
+  └─ no  → fresh Compliance audit
+```
+
+The repository was the durable system of record. Requirements, accepted
+decisions, task contracts, evidence, and release state were persisted in
+Markdown and Git state so fresh agents could continue the workflow without
+trusting hidden conversation history or another agent's claim of success.
+
+Role separation was deliberate:
+
+- writer roles did not review or approve their own changes;
+- fresh read-only sessions performed review, browser QA, accessibility, testing,
+  and final compliance where independence mattered;
+- repair work was bounded to concrete findings;
+- integration was serialized to protect repository state;
+- workflow advancement required repository state plus executable or observable
+  evidence.
+
+### 11.5 Verification and refinement
+
+AI-generated code and recommendations were treated as proposals until verified.
+
+Verification included:
 
 ```text
 Scenario B requirements
@@ -1087,23 +1144,41 @@ business-rule boundaries
 failure behavior
 data ownership
 implementation scope
+real browser behavior
+accessibility behavior
+automated regression gates
 ```
 
-Examples include:
+Representative business and architecture checks included:
 
 ```text
-89 / 90 / 91-day boundaries
+89 / 90 / 91-day aging boundaries
 dealership-local timezone behavior
 partial synchronization failure
-transaction rollback
+transaction rollback expectations
 action creation on a non-aging vehicle
 action creation on a vehicle no longer in current inventory
 inactive status validation
 optimistic rollback
 persistence across reloads
+URL-state normalization
 ```
 
-Patterns such as microservices, distributed caching, event streaming, incremental synchronization, and dedicated search infrastructure were excluded where no current requirement or measured bottleneck justified them.
+Independent browser and accessibility review also found defects that the
+implementation pass had not caught, including modal focus escaping to the
+background, insufficient touch-target sizing, contrast problems, and background
+page scrolling while a modal was open. A later independent verification pass
+found malformed URL state that could produce invalid pagination output such as
+`NaN` or `Infinity`. These findings were repaired and independently
+re-verified.
+
+The operating principle was:
+
+> **AI output is a proposal, not evidence.**
+
+AI increased exploration and implementation throughput, while final ownership
+of architecture, trade-offs, acceptance criteria, and release decisions
+remained with the designer.
 
 ---
 
