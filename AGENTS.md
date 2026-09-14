@@ -51,8 +51,8 @@ Execution responsibilities:
 - Lead-created child panes are temporary by default and must be closed automatically
   after their result/evidence is captured and repository state is safe; follow
   `docs/agents/PANE_LIFECYCLE.md`.
-- The active runtime is DeepSeek-only under `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
-- All roles run as fresh or role-appropriate Codex CLI sessions backed by `deepseek-flash`; provider identity does not collapse role boundaries.
+- The autonomous delivery runtime used for this challenge is recorded in `docs/decisions/0002-deepseek-only-autonomous-runtime.md` and `docs/agents/RUNTIME.md`; it is workflow provenance, not a product runtime dependency.
+- Role separation and fresh-session independence remain the important constraints regardless of the locally selected model/provider.
 - Lead/Auditor/Reviewer/Tester/Compliance are repository-mutation read-only.
 - Builder/Repairer/Integrator are bounded implementation writers; Workflow Scribe is a workflow-artifact-only writer.
 - A session that wrote implementation must not review, test-approve, or perform Compliance on its own work.
@@ -77,9 +77,9 @@ Task/release provenance rules:
 Release completion requires executable/observable evidence and final Codex
 System Design compliance PASS. Agent claims alone are not evidence.
 
-UI delivery entry point:
+Completed UI delivery record:
 - `.agents/skills/deliver-ui-redesign/SKILL.md`
-- `docs/plans/active/ui-redesign.md`
+- `docs/plans/completed/ui-redesign.md`
 
 See:
 - `docs/agents/ORCHESTRATION.md`
