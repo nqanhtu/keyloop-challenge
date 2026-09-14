@@ -1,6 +1,6 @@
 # Autonomous Orchestration Contract
 
-> Active runtime note: `docs/decisions/0002-deepseek-only-autonomous-runtime.md` supersedes provider-specific ownership. Lead/Reviewer/Tester/Compliance remain read-only roles; Builder/Repairer/Integrator/Scribe are distinct scoped writer roles. Fresh sessions preserve gate independence.
+> Delivery runtime note: `docs/decisions/0002-deepseek-only-autonomous-runtime.md` records the provider configuration used during autonomous delivery. Lead/Reviewer/Tester/Compliance remain read-only roles; Builder/Repairer/Integrator/Scribe are distinct scoped writer roles. Fresh sessions preserve gate independence.
 
 This document defines how Herdr and role-separated DeepSeek-backed Codex CLI sessions collaborate on this repository.
 
@@ -103,10 +103,10 @@ Only this role may decide `RELEASE: PASS`. If that verdict must be persisted, Wo
 
 A fresh Codex Lead must not search the repository heuristically for workflow state. Use the current active plan named by repository authority rather than assuming a fixed filename.
 
-For the current UI redesign, use:
+The completed UI redesign record is:
 
 ```text
-docs/plans/active/ui-redesign.md
+docs/plans/completed/ui-redesign.md
 ```
 
 Use these durable paths:
