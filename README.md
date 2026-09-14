@@ -4,9 +4,11 @@ Frontend implementation for **Scenario B — The Intelligent Inventory Dashboard
 
 The application provides a responsive inventory dashboard for dealership managers, including inventory discovery, aging visibility, vehicle details, manager actions, action history, loading/error/freshness states, and accessibility-focused responsive behavior.
 
-## Live Demo
+## Submission
 
-[Open the deployed Intelligent Inventory Dashboard](https://keyloop-challenge.vercel.app/)
+- [Live Demo](https://keyloop-challenge.vercel.app/)
+- [System Design](docs/system-design/system-design-v1.md)
+- [UI System Design](docs/ui-system-design/ui-system-design-v1.md) — supplementary frontend/UI authority
 
 ## Quick Start
 
