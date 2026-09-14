@@ -1,10 +1,12 @@
 # Agent Runtime Policy
 
-This file pins the active autonomous runtime policy. The accepted authority for the current provider/role mode is `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
+This file records the autonomous runtime configuration used during delivery of this challenge. The historical authority is `docs/decisions/0002-deepseek-only-autonomous-runtime.md`.
 
-## Active Mode
+The final application and submission do not depend on this provider configuration; it is retained as AI-workflow provenance.
 
-The workflow is **DeepSeek-only** until explicitly superseded.
+## Delivery Runtime Used
+
+The autonomous delivery used **DeepSeek-only** mode.
 
 All roles run as Herdr-managed Codex CLI sessions backed by:
 
@@ -34,9 +36,9 @@ A session that implemented or repaired code must not review, test-approve, integ
 
 ## Launch
 
-The local Codex configuration is expected to use the official DeepSeek Responses API provider and model catalog.
+During delivery, the local Codex configuration used the official DeepSeek Responses API provider and model catalog.
 
-Normal launch arguments inside a Herdr-managed pane:
+Recorded launch arguments inside a Herdr-managed pane:
 
 ```text
 -m deepseek-flash
