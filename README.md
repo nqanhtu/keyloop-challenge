@@ -4,6 +4,10 @@ Frontend implementation for **Scenario B — The Intelligent Inventory Dashboard
 
 The application provides a responsive inventory dashboard for dealership managers, including inventory discovery, aging visibility, vehicle details, manager actions, action history, loading/error/freshness states, and accessibility-focused responsive behavior.
 
+## Live Demo
+
+[Open the deployed Intelligent Inventory Dashboard](https://keyloop-challenge.vercel.app/)
+
 ## Quick Start
 
 ### Prerequisites
@@ -107,7 +111,7 @@ Important implementation boundaries:
 
 - React feature code does not access mock repositories or browser persistence directly.
 - TanStack Query owns server state.
-- Filters, sorting, pagination, and selected vehicle state are URL-driven where designed.
+- Filters, sorting, pagination, page size, and selected vehicle state are URL-driven where designed.
 - Inventory aging is derived behind the HTTP boundary.
 - Manager actions are append-only and persist across browser reloads in the mock environment.
 - Backend errors expose stable error codes used by frontend behavior.
@@ -138,9 +142,8 @@ The latest verified application state passed:
 - TypeScript: PASS
 - ESLint: PASS
 - Build: PASS
-- Vitest: **283 tests PASS across 29 test files**
+- Vitest: **283 tests PASS across 29 test files**, including **85 architecture checks**
 - Playwright: **48 E2E tests PASS** across desktop, tablet, and mobile
-- Architecture suites: **85 architecture checks PASS**
 
 Verification evidence is recorded under `docs/agents/evidence/`, including the completed UI compliance, pagination/page-size verification, and root-routing verification.
 
