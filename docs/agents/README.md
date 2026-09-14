@@ -33,11 +33,11 @@ Repository state and executable evidence outrank agent claims or session memory.
 
 See [ORCHESTRATION.md](ORCHESTRATION.md).
 
-## Runtime Policy
+## Delivery Runtime Record
 
-Read [RUNTIME.md](RUNTIME.md) before starting autonomous agents.
+[RUNTIME.md](RUNTIME.md) records the provider/model configuration used during the completed autonomous delivery. The final application does not depend on that provider configuration; role separation, bounded scope, and independent evidence are the durable workflow ideas.
 
-Normal runtime policy is intentionally economical because the repository Harness, Task Contracts, reviews, tests, and evidence carry much of the reliability:
+The delivery runtime was:
 
 ```text
 DeepSeek Lead         deepseek-flash / high
@@ -50,7 +50,7 @@ DeepSeek Builder      deepseek-flash / high
 DeepSeek Integrator   deepseek-flash / high
 ```
 
-Codex internal multi-agent mode stays disabled; Herdr is the orchestration layer. The current macOS environment requires runtime `danger-full-access` for Herdr Unix-socket IPC. Lead/Reviewer/Tester/Compliance stay logically read-only; only scoped DeepSeek Builder/Repairer/Integrator/Scribe sessions may write.
+Codex internal multi-agent mode was disabled and Herdr was the orchestration layer. The delivery macOS environment required broad local runtime access for Herdr Unix-socket IPC. Lead/Reviewer/Tester/Compliance stay logically read-only; only scoped DeepSeek Builder/Repairer/Integrator/Scribe sessions may write.
 
 ## Progressive Disclosure
 
@@ -108,10 +108,10 @@ docs/agents/rules/*.md
 
 A fresh Codex Lead must be able to resume from committed repository state plus current Git/Herdr state without requiring a previous chat transcript.
 
-For the current UI redesign, the active plan is:
+The UI redesign is complete. Its durable execution record is:
 
 ```text
-docs/plans/active/ui-redesign.md
+docs/plans/completed/ui-redesign.md
 ```
 
 Use a single active implementation plan for cross-session progress. Do not create parallel task databases unless an external tracker is explicitly adopted.
@@ -148,7 +148,7 @@ The following System Design boundaries must remain visible when work is decompos
 4. Filtering, sorting, and pagination are server-side semantics, simulated by the mock backend.
 5. Manager actions are immutable and append-only; the latest action is the current action.
 6. Frontend behavior uses stable `ApiError.code` values rather than message parsing.
-7. Filters, sort, and page are URL state; changing filters resets page to 1.
+7. Filters, sort, page, and page size are URL state; changing filters or page size resets page to 1.
 8. TanStack Query owns server state; avoid duplicating server data into independent application state.
 9. Aging status must not be communicated by color alone.
 10. Production backend/database/synchronization infrastructure is design-only and outside this implementation scope.
