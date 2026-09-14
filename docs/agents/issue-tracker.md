@@ -9,8 +9,8 @@ This file exists so generic review skills can resolve the repository's actual wo
 For autonomous delivery, use these sources in order:
 
 1. `docs/system-design/system-design-v1.md` — authoritative product and architecture design.
-2. `docs/plans/active/implementation.md` — current requirement registry, dependency DAG, execution state, and release progress.
-3. `docs/agents/tasks/<TASK-ID>.md` — bounded work-item specification produced by Codex Lead and written by Antigravity Workflow Scribe.
+2. `docs/plans/completed/implementation-intelligent-inventory-dashboard.md` — completed requirement registry, dependency DAG, execution state, and release record.
+3. `docs/agents/tasks/<TASK-ID>.md` — bounded work-item specification produced by the Lead and persisted by the Workflow Scribe.
 4. `docs/agents/evidence/<TASK-ID>.md` — builder/reviewer/test evidence and resolved findings.
 
 GitHub Issues may be used for human collaboration if explicitly requested, but they are not required for autonomous execution and must not become a parallel source of workflow truth.
