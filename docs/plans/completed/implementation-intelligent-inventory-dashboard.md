@@ -4,7 +4,7 @@ Date: 2026-09-10
 
 ## Status
 
-Active
+Completed
 
 ## Outcome
 
@@ -187,7 +187,7 @@ Execution waves:
 - Wave 3: T07 and T08 may run in parallel because their verification surfaces are independent.
 - Wave 4: clean pinned release candidate, fresh Compliance, then workflow-only compliance record/archive.
 
-Current ready frontier: **none** - all T01-T08 are integrated. Next: pin a clean release candidate and run the clean verification sequence, then fresh final Compliance.
+Final state: **all T01-T08 are integrated, the clean release candidate was verified, and fresh final Compliance returned `RELEASE: PASS`.**
 
 T01 integrated state: base `c166671e61df0d36617090f226a4ffaf79960c23`; implementation `2b15a1519ddfe5ed805a97341099e617b22eca93`; tooling repair `6ccd5a615643469c82e21ff2bd1faa69844f4b17`; integration commits `55fe9416ebf8d4b24bab338f53400d2446aa9081` and `46a90b93c085050126b04bc48769d7fc2aa1cd4a`; evidence `docs/agents/evidence/T01.md`.
 T02 integrated state: base `9cc7c62199a4b0ecb8d6ea51721200814e163035`; implementation `30891cdb5307cb5e72920ffbbe09e0d8914514b7`; integration commit `92bdc3f26ce7e88261a432279bdbbdae6a009a53`; evidence `docs/agents/evidence/T02.md`.
@@ -451,8 +451,8 @@ Bootstrap-plan validation:
 - T01 has explicit authority references, scope, exclusions, test seams, acceptance, validation, and evidence shape;
 - no implementation `base_commit` is fabricated before the plan commit exists.
 
-Product validation remains pending and must come from implementation/test/runtime evidence according to the release gates above.
+Product validation completed through the implementation, browser, architecture, clean-candidate, and final Compliance evidence recorded above.
 
 ## Result
 
-Pending. This plan remains active until the pinned release candidate passes fresh final Compliance and the post-pass workflow-record provenance check completes.
+Completed. The pinned release candidate passed the required clean verification sequence and fresh final Compliance returned `RELEASE: PASS`. Later UI-redesign, page-size, and root-routing work is tracked in separate completed plans/evidence and does not change the historical release evidence recorded here.
