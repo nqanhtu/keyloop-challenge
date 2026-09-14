@@ -1,40 +1,35 @@
 # Documentation Map
 
-Start with the smallest authoritative surface.
+This directory contains the design, delivery, and verification record for the
+Keyloop Scenario B submission.
 
-## Current Product
+## Start Here
 
-- `WORKFLOW.md`: request shape, planning, judgment, operation, validation, and
-  completion.
-- `ARCHITECTURE.md`: current product, code, state, update, and ownership
+- [System Design](system-design/system-design-v1.md) — final product and
+  end-to-end architecture authority.
+- [UI System Design](ui-system-design/ui-system-design-v1.md) — responsive UI,
+  interaction, visual-system, and accessibility authority.
+- [Decisions](decisions/README.md) — accepted decisions that refine the design.
+- [Completed plans](plans/completed/) — implementation and UI delivery history.
+- [Agent workflow](agents/README.md) — multi-agent orchestration, role separation,
+  task contracts, and verification evidence.
+
+## Implementation Evidence
+
+- `agents/evidence/` contains task, browser, accessibility, compliance, and
+  follow-up verification records.
+- `../src/test/` contains architecture checks that mechanically enforce key
   boundaries.
-- `HARNESS.md`: product principles and installed-core model.
-- `product/`: current product behavior and installation contract.
-- `decisions/`: lasting choices future work must inherit.
-- `plans/`: one durable working-memory document for work that needs it.
-- [`patterns/encoding-invariants.md`](patterns/encoding-invariants.md): turn
-  accepted architecture, reliability, security, and quality rules into native
-  mechanical validation.
-- `templates/`: optional decision, plan, runbook, and Harness-improvement
-  structures.
+- `../e2e/` contains the Playwright user-journey and responsive browser tests.
 
-## Consumer-Owned Truth
+## Workflow Infrastructure
 
-The consumer's README, product documents, architecture, code, tests, CI,
-runtime signals, and application behavior remain authoritative. Harness does
-not overwrite those with upstream product assumptions.
+- `WORKFLOW.md`, `patterns/`, and `templates/` are workflow support retained
+  for reproducibility.
+- `.agents/` and `.harness-core/` at the repository root support the
+  multi-agent workflow and are not application runtime dependencies.
+- Provider/model-specific runtime records are historical AI-workflow provenance;
+  the final application does not depend on them.
 
-## Source Repository
-
-- Root `README.md`: product overview, installation, maintenance, EOL, and
-  development.
-- `crates/harness/`: safe core installer/updater.
-- `scripts/`: platform bootstrap, release, and validation entrypoints.
-- `tests/`: behavior ownership and repository contract.
-
-## History
-
-The former SQLite control plane, protocol v1, story packets, migration evidence,
-and compatibility documentation are preserved by Git history and immutable
-`harness-cli-v*` tags. They are intentionally absent from the current tree so
-search and agent retrieval return current product authority.
+For build, run, test, deployment, and the concise AI Collaboration Narrative,
+start from the root [README](../README.md).
